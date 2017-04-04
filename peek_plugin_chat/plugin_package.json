@@ -9,9 +9,12 @@
         "website": "www.synerty.com"
     },
     "requiresServices": [
-        "server"
+        "server",
+        "client"
     ],
     "server": {
+    },
+    "client": {
     },
     "admin": {
         "moduleDir": "plugin-module"
