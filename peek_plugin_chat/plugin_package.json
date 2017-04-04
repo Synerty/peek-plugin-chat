@@ -10,11 +10,15 @@
     },
     "requiresServices": [
         "server",
-        "client"
+        "client",
+        "storage"
     ],
     "server": {
     },
     "client": {
+    },
+    "storage": {
+        "alembicDir": "_private/alembic"
     },
     "admin": {
         "moduleDir": "plugin-module"

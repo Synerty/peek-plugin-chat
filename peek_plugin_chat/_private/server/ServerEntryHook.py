@@ -2,10 +2,13 @@ import logging
 
 from peek_plugin_base.server.PluginServerEntryHookABC import PluginServerEntryHookABC
 
+from peek_plugin_tutorial._private.storage import DeclarativeBase, loadStorageTuples
+from peek_plugin_base.server.PluginServerStorageEntryHookABC import PluginServerStorageEntryHookABC
+
 logger = logging.getLogger(__name__)
 
 
-class ServerEntryHook(PluginServerEntryHookABC):
+class ServerEntryHook(PluginServerEntryHookABC, PluginServerStorageEntryHookABC):
     def __init__(self, *args, **kwargs):
         """" Constructor """
         # Call the base classes constructor
@@ -21,7 +24,14 @@ class ServerEntryHook(PluginServerEntryHookABC):
         Place any custom initialiastion steps here.
 
         """
+
+        loadStorageTuples()
+
         logger.debug("Loaded")
+
+        @property
+        def dbMetadata(self):
+            return DeclarativeBase.metadata
 
     def start(self):
         """ Start

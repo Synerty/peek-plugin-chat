@@ -2,6 +2,8 @@ import logging
 
 from peek_plugin_base.client.PluginClientEntryHookABC import PluginClientEntryHookABC
 
+from peek_plugin_tutorial._private.storage import loadStorageTuples
+
 logger = logging.getLogger(__name__)
 
 
@@ -21,6 +23,9 @@ class ClientEntryHook(PluginClientEntryHookABC):
         Place any custom initialiastion steps here.
 
         """
+
+        loadStorageTuples()
+
         logger.debug("Loaded")
 
     def start(self):
