@@ -2,8 +2,9 @@ import logging
 
 from peek_plugin_base.server.PluginServerEntryHookABC import PluginServerEntryHookABC
 
-from peek_plugin_tutorial._private.storage import DeclarativeBase, loadStorageTuples
-from peek_plugin_base.server.PluginServerStorageEntryHookABC import PluginServerStorageEntryHookABC
+from peek_plugin_chat._private.storage import DeclarativeBase, loadStorageTuples
+from peek_plugin_base.server.PluginServerStorageEntryHookABC import \
+    PluginServerStorageEntryHookABC
 
 logger = logging.getLogger(__name__)
 
@@ -29,9 +30,9 @@ class ServerEntryHook(PluginServerEntryHookABC, PluginServerStorageEntryHookABC)
 
         logger.debug("Loaded")
 
-        @property
-        def dbMetadata(self):
-            return DeclarativeBase.metadata
+    @property
+    def dbMetadata(self):
+        return DeclarativeBase.metadata
 
     def start(self):
         """ Start

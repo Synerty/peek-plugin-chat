@@ -11,7 +11,8 @@
     "requiresServices": [
         "server",
         "client",
-        "storage"
+        "storage",
+        "admin"
     ],
     "server": {
     },
@@ -21,6 +22,9 @@
         "alembicDir": "_private/alembic"
     },
     "admin": {
+        "showHomeLink": true,
+        "appDir": "_private/admin-app",
+        "appModule": "chat.module#ChatModule",
         "moduleDir": "plugin-module"
     },
     "mobile": {
