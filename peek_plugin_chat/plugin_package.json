@@ -12,7 +12,8 @@
         "server",
         "client",
         "storage",
-        "admin"
+        "admin",
+        "mobile"
     ],
     "server": {
     },
@@ -28,6 +29,11 @@
         "moduleDir": "plugin-module"
     },
     "mobile": {
+        "showHomeLink": true,
+        "appDir": "_private/mobile-app",
+        "appModule": "chat.module#ChatModule",
+        "assetDir": "_private/mobile-assets",
+        "icon": "/assets/peek_plugin_chat/icon.png",
         "moduleDir": "plugin-module"
     },
     "desktop": {
