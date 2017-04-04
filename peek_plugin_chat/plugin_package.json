@@ -1,0 +1,22 @@
+{
+    "plugin": {
+        "title": "Chat Plugin",
+        "packageName": "peek_plugin_chat",
+        "version": "0.0.1",
+        "buildNumber": "#PLUGIN_BUILD#",
+        "buildDate": "#BUILD_DATE#",
+        "creator": "Synerty Pty Ltd",
+        "website": "www.synerty.com"
+    },
+    "requiresServices": [
+    ],
+    "admin": {
+        "moduleDir": "plugin-module"
+    },
+    "mobile": {
+        "moduleDir": "plugin-module"
+    },
+    "desktop": {
+        "moduleDir": "plugin-module"
+    }
+}
