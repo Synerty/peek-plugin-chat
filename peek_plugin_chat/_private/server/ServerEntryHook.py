@@ -1,10 +1,18 @@
 import logging
 
 from peek_plugin_base.server.PluginServerEntryHookABC import PluginServerEntryHookABC
-
-from peek_plugin_chat._private.storage import DeclarativeBase, loadStorageTuples
 from peek_plugin_base.server.PluginServerStorageEntryHookABC import \
     PluginServerStorageEntryHookABC
+from peek_plugin_chat._private.server.SendChatMsgActionTuple import \
+    makeTupleActionProcessorHandler
+from peek_plugin_chat._private.server.TupleDataObservable import \
+    makeTupleDataObservableHandler
+from peek_plugin_chat._private.server.admin_backend import makeAdminBackendHandlers
+from peek_plugin_chat._private.server.controller.MainController import MainController
+from peek_plugin_chat._private.storage import DeclarativeBase, loadStorageTuples
+from peek_plugin_chat._private.tuples import loadPrivateTuples
+from peek_plugin_chat.tuples import loadPublicTuples
+from peek_plugin_user.server.UserDbServerApiABC import UserDbServerApiABC
 
 logger = logging.getLogger(__name__)
 
@@ -27,12 +35,10 @@ class ServerEntryHook(PluginServerEntryHookABC, PluginServerStorageEntryHookABC)
         """
 
         loadStorageTuples()
+        loadPrivateTuples()
+        loadPublicTuples()
 
         logger.debug("Loaded")
-
-    @property
-    def dbMetadata(self):
-        return DeclarativeBase.metadata
 
     def start(self):
         """ Start
@@ -45,6 +51,24 @@ class ServerEntryHook(PluginServerEntryHookABC, PluginServerStorageEntryHookABC)
         -   Create payload, observable and tuple action handlers.
 
         """
+        userPluginApi = self.platform.getOtherPluginApi("peek_plugin_user")
+
+        assert isinstance(userPluginApi,
+                          UserDbServerApiABC), "Expected UserDbServerApiABC"
+
+        self._loadedObjects.extend(makeAdminBackendHandlers(self.dbSessionCreator))
+
+        tupleObservable = makeTupleDataObservableHandler(self.dbSessionCreator)
+        self._loadedObjects.append(tupleObservable)
+
+        mainController = MainController(
+            dbSessionCreator=self.dbSessionCreator,
+            tupleObservable=tupleObservable,
+            userPluginApi=userPluginApi)
+
+        self._loadedObjects.append(mainController)
+        self._loadedObjects.append(makeTupleActionProcessorHandler(mainController))
+
         logger.debug("Started")
 
     def stop(self):
@@ -67,3 +91,7 @@ class ServerEntryHook(PluginServerEntryHookABC, PluginServerStorageEntryHookABC)
 
         """
         logger.debug("Unloaded")
+
+    @property
+    def dbMetadata(self):
+        return DeclarativeBase.metadata

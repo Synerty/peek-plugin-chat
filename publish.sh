@@ -9,7 +9,7 @@ PY_PACKAGE="peek_plugin_chat"
 
 # Leave blank not to publish
 # Or select one of the index servers defined in ~/.pypirc
-PYPI_PUBLISH=""
+PYPI_PUBLISH="pipy"
 
 
 #------------------------------------------------------------------------------

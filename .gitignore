@@ -17,3 +17,4 @@ MANIFEST
 dist
 .idea
 .vscode
+docs/api_autodoc

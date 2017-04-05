@@ -1,0 +1,23 @@
+<div class="container">
+    <Button class="btn btn-default" (click)="mainClicked()">Back to Main</Button>
+
+
+    <row *ngFor="let item of stringInts">
+        <div class="col-sm-12">
+            <td>{{item.string1}}</td>
+            <td>{{item.int1}}</td>
+        </div>
+    </row>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="input-group">
+                <input type="text" class="form-control">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="button"
+                            (click)="sendMsgClicked()">Send</button>
+                </span>
+            </div><!-- /input-group -->
+        </div><!-- /.col-lg-6 -->
+    </div><!-- /.row -->
+</div>

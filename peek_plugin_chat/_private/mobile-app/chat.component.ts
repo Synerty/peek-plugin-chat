@@ -1,4 +1,6 @@
 import {Component} from "@angular/core";
+import {Router} from "@angular/router";
+import {chatBaseUrl, ChatMsgTuple} from "@peek/peek_plugin_chat/_private";
 
 @Component({
     selector: 'plugin-chat',
@@ -7,8 +9,12 @@ import {Component} from "@angular/core";
 })
 export class ChatComponent {
 
-    constructor() {
+    constructor(private router: Router) {
 
+    }
+
+    chatMsgClicked() {
+        this.router.navigate([chatBaseUrl, 'chatmsg']);
     }
 
 }
