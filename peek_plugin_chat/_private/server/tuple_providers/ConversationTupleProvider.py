@@ -47,7 +47,7 @@ class ConversationTupleProvider(TuplesProviderABC):
             else:
 
                 convs = (session.query(ConversationTuple)
-                         .join(ConversationUserTuple.convId == ConversationTuple.id)
+                         .join(ConversationUserTuple, ConversationUserTuple.convId == ConversationTuple.id)
                          .filter(ConversationUserTuple.id == convId)
                          .order_by(ConversationTuple.lastActivity)
                          .all())

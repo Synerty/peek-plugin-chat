@@ -2,12 +2,12 @@
     <Button class="btn btn-default" (click)="mainClicked()">Back to Main</Button>
 
 
-    <row *ngFor="let item of stringInts">
+    <div class="row" *ngFor="let item of messages">
         <div class="col-sm-12">
             <td>{{item.string1}}</td>
             <td>{{item.int1}}</td>
         </div>
-    </row>
+    </div>
 
     <div class="row">
         <div class="col-sm-12">

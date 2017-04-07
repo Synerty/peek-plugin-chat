@@ -6,7 +6,7 @@
         <Label class="h3" col="1" text="Int"></Label>
     </GridLayout>
 
-    <ListView [items]="stringInts">
+    <ListView [items]="conversations">
         <template let-item="item" let-i="index" let-odd="odd" let-even="even">
             <StackLayout [class.odd]="odd" [class.even]="even">
                 <GridLayout columns="4*, 1*" rows="auto" width="*">
@@ -23,9 +23,4 @@
             </StackLayout>
         </template>
     </ListView>
-
-    <GridLayout columns="*, auto" rows="auto" width="*">
-        <TextView></TextView>
-                <Button text="Send" (tap)="sendMsgClicked()"></Button>
-    </GridLayout>
 </StackLayout>

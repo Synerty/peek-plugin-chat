@@ -23,7 +23,8 @@ import {
 } from "@peek/peek_plugin_chat/_private";
 // Import the default route component
 import {ChatComponent} from "./chat.component";
-import {ChatMsgComponent} from "./chat-msg/chat-msg.component";
+import {MsgListComponent} from "./msg-list/msg-list.component";
+import {ConvListComponent} from "./conv-list/conv-list.component";
 
 
 export function tupleOfflineStorageNameServiceFactory() {
@@ -43,8 +44,12 @@ export function tupleActionPushNameServiceFactory() {
 // Define the child routes for this plugin
 export const pluginRoutes: Routes = [
     {
-        path: 'chatmsg',
-        component: ChatMsgComponent
+        path: 'messages',
+        component: MsgListComponent
+    },
+    {
+        path: 'conversations',
+        component: ConvListComponent
     },
     {
         path: '',
@@ -83,7 +88,7 @@ export const pluginRoutes: Routes = [
             useFactory: tupleActionPushNameServiceFactory
         },
     ],
-    declarations: [ChatComponent, ChatMsgComponent]
+    declarations: [ChatComponent, MsgListComponent, ConvListComponent]
 })
 export class ChatModule {
 }

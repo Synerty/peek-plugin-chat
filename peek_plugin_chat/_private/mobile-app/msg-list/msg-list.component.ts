@@ -1,6 +1,8 @@
 import {Component} from "@angular/core";
 import {Router} from "@angular/router";
-import {chatBaseUrl, ChatMsgTuple} from "@peek/peek_plugin_chat/_private";
+import {chatBaseUrl, MessageTuple, SendChatMsgActionTuple} from "@peek/peek_plugin_chat/_private";
+
+import {UserService} from "@peek/peek_plugin_user"
 
 import {
     ComponentLifecycleEventEmitter,
@@ -8,32 +10,32 @@ import {
     TupleDataObserverService,
     TupleSelector
 } from "@synerty/vortexjs";
-import {SendChatMsgActionTuple} from "../../../plugin-module/_private/tuples/SendChatMsgActionTuple";
 
 @Component({
-    selector: 'plugin-chat-chat-msg',
-    templateUrl: 'chat-msg.component.mweb.html',
+    selector: 'plugin-chat-msg-list',
+    templateUrl: 'msg-list.component.mweb.html',
     moduleId: module.id
 })
-export class ChatMsgComponent extends ComponentLifecycleEventEmitter {
+export class MsgListComponent extends ComponentLifecycleEventEmitter {
 
-    stringInts: Array<ChatMsgTuple> = [];
+    messages: Array<MessageTuple> = [];
 
     constructor(private actionService: TupleActionPushService,
                 private tupleDataObserver: TupleDataObserverService,
-                private router: Router) {
+                private router: Router,
+                private userService:UserService) {
         super();
 
         // Create the TupleSelector to tell the obserbable what data we want
         let selector = {};
         selector["userId"] = "userId";
-        let tupleSelector = new TupleSelector(ChatMsgTuple.tupleName, selector);
+        let tupleSelector = new TupleSelector(MessageTuple.tupleName, selector);
 
         // Setup a subscription for the data
         let sup = tupleDataObserver.subscribeToTupleSelector(tupleSelector)
-            .subscribe((tuples: ChatMsgTuple[]) => {
+            .subscribe((tuples: MessageTuple[]) => {
                 // We've got new data, assign it to our class variable
-                this.stringInts = tuples;
+                this.messages = tuples;
             });
 
         // unsubscribe when this component is destroyed
