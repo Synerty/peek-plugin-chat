@@ -6,8 +6,8 @@ Chat Plugin Documentation
     :maxdepth: 3
     :caption: Contents:
 
-    README
-    modules
+    overview/overview
+    api/index_api
 
 Indices and tables
 ==================

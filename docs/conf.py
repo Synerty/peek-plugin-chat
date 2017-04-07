@@ -22,7 +22,7 @@
 # sys.path.insert(0, os.path.abspath('.'))
 
 __project__ = 'Peek Plugin - Chat'
-__copyright__ = '2016, Synerty'
+__copyright__ = '2017, Synerty'
 __author__ = 'Synerty'
 __version__ = '0.0.1'
 

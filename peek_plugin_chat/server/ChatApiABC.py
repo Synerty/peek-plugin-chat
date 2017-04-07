@@ -1,118 +1,59 @@
 from abc import ABCMeta, abstractmethod
-from datetime import datetime
 
-from typing import Optional, List
+from rx.subjects import Subject
+from typing import Optional
 
 
-class NewTask:
-    """ TaskTuple
+class NewMessage:
+    """ New Message
 
-    A TaskTuple represents the feature rich mechanism for notifications, alerts and messages
-     sent from initiator plugins to mobile devices.
+    This class represents a new message that another plugin can send to a user.
 
     """
 
-    # Auto complete options
-    AUTO_COMPLETE_OFF = 0
-    AUTO_COMPLETE_ON_DELIVER = 1
-    AUTO_COMPLETE_ON_SELECT = 2
-    AUTO_COMPLETE_ON_ACTION = 4
+    # Message priorities
+    PRIORITY_EMERGENCY = 1
+    PRIORITY_NORMAL = 2
 
-    # Auto delete options
-    AUTO_DELETE_OFF = 0
-    AUTO_DELETE_ON_DELIVER = 1
-    AUTO_DELETE_ON_SELECT = 2
-    AUTO_DELETE_ON_ACTION = 4
-    AUTO_DELETE_ON_COMPLETE = 8
-
-    # notification mask (multiple options allowed)
-    NOTIFY_BY_DEVICE_POPUP = 1
-    NOTIFY_BY_DEVICE_SOUND = 2
-    NOTIFY_BY_SMS = 4
-    NOTIFY_BY_EMAIL = 8
-
-    # Display options
-    DISPLAY_AS_TASK = 0
-    DISPLAY_AS_MESSAGE = 1
-
-    def __init__(self, uniqueId: str, userId: str, title: str,
-                 description: Optional[str] = None, iconPath: Optional[str] = None,
-                 displayAs:int = 0,
-                 routePath: Optional[str] = None, routeParamJson: Optional[dict] = None,
-                 autoComplete: int = 0,
-                 autoDelete: int = 0,
-                 autoDeleteDateTime: Optional[datetime] = None,
-                 onDeliveredPayload: Optional[bytes] = None,
-                 onCompletedPayload: Optional[bytes] = None,
-                 onDeletedPayload: Optional[bytes] = None,
-                 notificationRequiredFlags: int = 0,
-                 actions: List['NewTaskAction'] = (),
-                 overwriteExisting=False):
+    def __init__(self,
+                 extFromUserId: str,
+                 extFromUserName: str,
+                 toUserId: str,
+                 message: str,
+                 priority: int = PRIORITY_NORMAL,
+                 onReadPayload: Optional[bytes] = None
+                 ):
         """
-        :param uniqueId: A unique identifier provided when this task was created.
-            The initiating plugin may use this later to cancel the task.
-            HINT : Ensure you prefix the uniqueId with your plugin name.
+        :param extFromUserId: The external user id of the user sending the message.
+            This doesn't have to match a userId in the peek_plugin_user plugin.
     
-        :param userId: A string representing the unique ID of the user. This must match the
-            users plugin.
+        :param extFromUserName: The name of the external user (or system) sending the
+            message.
     
-        :param title: The title to display in the task.
-        :param description: The long text that is displayed under the title for this task.
-        :param iconPath: The URL for the icon, if any.
-        :param displayAs: Should this task be displayed as a message or task?
-    
-        :param routePath: If this route path is defined, then selecting the task
-            will cause the peek client fe to change routes to a new page.
-        :param routeParamJson: If the route path is defined, this route param json 
-            will be passed along when the route is switched..
-    
-        :param autoComplete: Should this task auto complete?
-                This parameter defines what state it will auto complete in.
-                See the AUTO_COMPLETE... class constants
-        :param autoDelete: Should this task auto delete?
-                This parameter defines what state it will auto delete in.
-                See the AUTO_DELETE... class constants
-        :param autoDeleteDateTime: The datetime when this task should automatically
-                be deleted it if still exists.
-    
-        :param onDeliveredPayload: (Optional) The payload that will be delivered locally
-            on Peek Server when the task is delivered.
-        :param onCompletedPayload: (Optional) The payload that will be delivered locally
-            on Peek Server when the task is completed (auto, or otherwise)
-        :param onDeletedPayload: (Optional) The payload that will be delivered locally
-            on Peek Server when the task is deleted (auto, or otherwise)
+        :param toUserId: The peek userId that matches a user in peek_plugin_user plugin.
+        
+        :param message: The message to send to the user.
+        
+        :param priority: The priority of this message, some messages may be emergency 
+            messages.
+        
+        :param onReadPayload: (Optional) The payload that will be delivered locally
+            on Peek Server when the user has read the message.
             
-        :param overwriteExisting: If a task with that uniqueId already exists, it will be
-            deleted.
         """
-        self.uniqueId = self._required(uniqueId, "uniqueId")
-        self.userId = self._required(userId, "userId")
+        # From User
+        self.extFromUserId = self._required(extFromUserId, "extFromUserId")
+        self.extFromUserName = self._required(extFromUserName, "extFromUserName")
 
-        # The display properties of the task
-        self.title = self._required(title, "title")
-        self.description = description
-        self.iconPath = iconPath
+        # To User
+        self.toUserId = self._required(toUserId, "toUserId")
 
-        self.displayAs = displayAs
+        # Message
+        self.message = self._required(message, "message")
+        self.priority = self._required(priority, "priority")
 
-        # The client_fe_app route to open when this task is selected
-        self.routePath = routePath
-        self.routeParamJson = routeParamJson
-
-        # The confirmation options
-        self.onDeliveredPayload = onDeliveredPayload
-        self.onCompletedPayload = onCompletedPayload
-        self.onDeletedPayload = onDeletedPayload
-
-        self.autoComplete = autoComplete
-        self.autoDelete = autoDelete
-        self.autoDeleteDateTime = autoDeleteDateTime
-        self.overwriteExisting = overwriteExisting
-
-        self.notificationRequiredFlags = notificationRequiredFlags
-
-        # The actions for this TaskTuple.
-        self.actions = list(actions)
+        # On Read Payload
+        self.onReadPayload = onReadPayload
 
     def _required(self, val, desc):
         if not val:
@@ -121,51 +62,86 @@ class NewTask:
         return val
 
 
+class ReceivedMessage:
+    """ Received Message
+
+    This class represents a message received from a user.
+
+    """
+
+    # Message priorities
+    PRIORITY_EMERGENCY = 1
+    PRIORITY_NORMAL = 2
+
+    def __init__(self,
+                 extFromUserId: str,
+                 extFromUserName: str,
+                 toUserId: str,
+                 message: str,
+                 priority: int = PRIORITY_NORMAL,
+                 onReadPayload: Optional[bytes] = None
+                 ):
+        """
+        :param extFromUserId: The external user id of the user sending the message.
+            This doesn't have to match a userId in the peek_plugin_user plugin.
+
+        :param extFromUserName: The name of the external user (or system) sending the
+            message.
+
+        :param toUserId: The peek userId that matches a user in peek_plugin_user plugin.
+
+        :param message: The message to send to the user.
+
+        :param priority: The priority of this message, some messages may be emergency 
+            messages.
+
+        :param onReadPayload: (Optional) The payload that will be delivered locally
+            on Peek Server when the user has read the message.
+
+        """
+        # From User
+        self.extFromUserId = self._required(extFromUserId, "extFromUserId")
+        self.extFromUserName = self._required(extFromUserName, "extFromUserName")
+
+        # To User
+        self.toUserId = self._required(toUserId, "toUserId")
+
+        # Message
+        self.message = self._required(message, "message")
+        self.priority = self._required(priority, "priority")
+
+        # On Read Payload
+        self.onReadPayload = onReadPayload
+
+    def _required(self, val, desc):
+        if not val:
+            raise Exception("%s is not optional" % desc)
+
+        return val
+
 
 class ChatApiABC(metaclass=ABCMeta):
     @abstractmethod
-    def addTask(self, task: NewTask) -> None:
-        """ Add a New Task
+    def sendMessage(self, newMessage: NewMessage) -> None:
+        """ Send a Message
 
-        Add a new task to the users device.
+        Send a new chat message to a user.
         
-        :param task: The definition of the task to add.
+        :param newMessage: The definition of the message to send.
         
         """
 
     @abstractmethod
-    def completeTask(self, uniqueId: str) -> None:
+    def completeTask(self, extToUserId: str) -> Subject:
         """ Complete a Task
         
         Mark a task as complete. NOTE, This doesn't delete it.
         
-        :param uniqueId: The uniqueId provided when the task was created.
-        """
-
-    @abstractmethod
-    def removeTask(self, uniqueId: str) -> None:
-        """ Remove a Task
+        :param extToUserId: The external systems userId, that the plugin wants to 
+            observe messages for. This is just identifier unique to the external
+            system.
+            
+        :return: A RxJS Observable that will notify observers when a message arrives
+            for that external system.
         
-        Remove a task from the users device.
-        
-        :param uniqueId: The uniqueId provided when the task was created.
-        """
-
-    @abstractmethod
-    def addActivity(self, activity: NewActivity) -> None:
-        """ Add a new Activity item
-
-        Add a new Activity to the users device.
-
-        :param activity: The definition of the activity to add.
-
-        """
-
-    @abstractmethod
-    def removeActivity(self, uniqueId: str) -> None:
-        """ Remove an Activity item
-
-        Remove an Activity from the users device.
-
-        :param uniqueId: The uniqueId provided when the activity was created.
         """
