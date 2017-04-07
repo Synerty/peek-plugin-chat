@@ -363,7 +363,14 @@ def createApiDocs(modFileName):
 ###############################################################################
 
 # Create APIs with the AutoAPI hack above
-import peek_plugin_chat
+try:
+    import peek_plugin_chat
+
+except ImportError:
+    # Otherwise, add the plugin root dir to the import path, for read the docs.
+    sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+    import peek_plugin_chat
+
 createApiDocs(peek_plugin_chat.__file__)
 
 # import peek_platform
