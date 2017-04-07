@@ -1,9 +1,11 @@
 import logging
 
+from peek_plugin_active_task.server.ActiveTaskApiABC import ActiveTaskApiABC
 from peek_plugin_base.server.PluginServerEntryHookABC import PluginServerEntryHookABC
 from peek_plugin_base.server.PluginServerStorageEntryHookABC import \
     PluginServerStorageEntryHookABC
-from peek_plugin_chat._private.server.SendChatMsgActionTuple import \
+from peek_plugin_chat._private.server.ChatApi import ChatApi
+from peek_plugin_chat._private.server.TupleActionProcessor import \
     makeTupleActionProcessorHandler
 from peek_plugin_chat._private.server.TupleDataObservable import \
     makeTupleDataObservableHandler
@@ -25,6 +27,9 @@ class ServerEntryHook(PluginServerEntryHookABC, PluginServerStorageEntryHookABC)
 
         #: Loaded Objects, This is a list of all objects created when we start
         self._loadedObjects = []
+
+        #: The API object for this plugin
+        self._api = None
 
     def load(self) -> None:
         """ Load
@@ -52,9 +57,12 @@ class ServerEntryHook(PluginServerEntryHookABC, PluginServerStorageEntryHookABC)
 
         """
         userPluginApi = self.platform.getOtherPluginApi("peek_plugin_user")
+        assert isinstance(userPluginApi, UserDbServerApiABC), (
+            "Expected UserDbServerApiABC")
 
-        assert isinstance(userPluginApi,
-                          UserDbServerApiABC), "Expected UserDbServerApiABC"
+        activeTaskPluginApi = self.platform.getOtherPluginApi("peek_plugin_active_task")
+        assert isinstance(activeTaskPluginApi, ActiveTaskApiABC), (
+            "Expected ActiveTaskApiABC")
 
         self._loadedObjects.extend(makeAdminBackendHandlers(self.dbSessionCreator))
 
@@ -64,10 +72,16 @@ class ServerEntryHook(PluginServerEntryHookABC, PluginServerStorageEntryHookABC)
         mainController = MainController(
             dbSessionCreator=self.dbSessionCreator,
             tupleObservable=tupleObservable,
-            userPluginApi=userPluginApi)
+            userPluginApi=userPluginApi,
+            activeTaskPluginApi=activeTaskPluginApi)
 
         self._loadedObjects.append(mainController)
         self._loadedObjects.append(makeTupleActionProcessorHandler(mainController))
+
+
+        self._api = ChatApi(self.dbSessionCreator)
+        self._loadedObjects.append(self._api)  # For auto shutdown
+        self._api.setMainController(mainController)
 
         logger.debug("Started")
 
@@ -80,6 +94,8 @@ class ServerEntryHook(PluginServerEntryHookABC, PluginServerStorageEntryHookABC)
         # Shutdown and dereference all objects we constructed when we started
         while self._loadedObjects:
             self._loadedObjects.pop().shutdown()
+
+        self._api = None
 
         logger.debug("Stopped")
 

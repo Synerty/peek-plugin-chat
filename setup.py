@@ -12,7 +12,7 @@ author_email = 'contact@synerty.com'
 py_package_name = "peek_plugin_chat"
 pip_package_name = py_package_name.replace('_', '-')
 package_version = '0.0.1'
-description = 'Peek Plugin - Chat -  chat between users in the Peek platform'
+description = 'Peek Plugin - Chat - Chat between users in the Peek platform'
 
 download_url = 'https://bitbucket.org/synerty/%s/get/%s.zip'
 download_url %= pip_package_name, package_version
@@ -57,8 +57,9 @@ setup(
     name=pip_package_name,
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     package_data={'': package_files},
-    install_requires=['peek-plugin-base'],
-    zip_safe=False,version=package_version,
+    install_requires=['peek-plugin-base', 'peek-plugin-active-task', 'peek-plugin-user'],
+    zip_safe=False,
+    version=package_version,
     description=description,
     author=author,
     author_email=author_email,

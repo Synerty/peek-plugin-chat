@@ -4,7 +4,7 @@ from rx.subjects import Subject
 from typing import Optional
 
 
-class NewMessage:
+class SendMessage:
     """ New Message
 
     This class represents a new message that another plugin can send to a user.
@@ -12,22 +12,25 @@ class NewMessage:
     """
 
     # Message priorities
+
+    #:  Emergency priority for message
     PRIORITY_EMERGENCY = 1
+    #:  Normal priority for message
     PRIORITY_NORMAL = 2
 
     def __init__(self,
-                 extFromUserId: str,
-                 extFromUserName: str,
+                 fromExtUserId: str,
+                 fromExtUserName: str,
                  toUserId: str,
                  message: str,
                  priority: int = PRIORITY_NORMAL,
                  onReadPayload: Optional[bytes] = None
                  ):
-        """
-        :param extFromUserId: The external user id of the user sending the message.
+        """ 
+        :param fromExtUserId: The external user id of the user sending the message.
             This doesn't have to match a userId in the peek_plugin_user plugin.
     
-        :param extFromUserName: The name of the external user (or system) sending the
+        :param fromExtUserName: The name of the external user (or system) sending the
             message.
     
         :param toUserId: The peek userId that matches a user in peek_plugin_user plugin.
@@ -42,8 +45,8 @@ class NewMessage:
             
         """
         # From User
-        self.extFromUserId = self._required(extFromUserId, "extFromUserId")
-        self.extFromUserName = self._required(extFromUserName, "extFromUserName")
+        self.fromExtUserId = self._required(fromExtUserId, "fromExtUserId")
+        self.fromExtUserName = self._required(fromExtUserName, "fromExtUserName")
 
         # To User
         self.toUserId = self._required(toUserId, "toUserId")
@@ -65,50 +68,44 @@ class NewMessage:
 class ReceivedMessage:
     """ Received Message
 
-    This class represents a message received from a user.
+    This class represents a message sent from a peek user to an external system.
 
     """
 
     # Message priorities
-    PRIORITY_EMERGENCY = 1
-    PRIORITY_NORMAL = 2
+    PRIORITY_EMERGENCY = SendMessage.PRIORITY_EMERGENCY
+    PRIORITY_NORMAL = SendMessage.PRIORITY_NORMAL
 
     def __init__(self,
-                 extFromUserId: str,
-                 extFromUserName: str,
-                 toUserId: str,
+                 toExtUserId: str,
+                 fromUserId: str,
                  message: str,
-                 priority: int = PRIORITY_NORMAL,
-                 onReadPayload: Optional[bytes] = None
+                 priority: int,
+                 onReadPayload: bytes
                  ):
         """
-        :param extFromUserId: The external user id of the user sending the message.
-            This doesn't have to match a userId in the peek_plugin_user plugin.
+        :param toExtUserId: The external user id that the message is sent to.
 
-        :param extFromUserName: The name of the external user (or system) sending the
-            message.
+        :param fromUserId: The peek userId sending the message to the 
+            external system.
 
-        :param toUserId: The peek userId that matches a user in peek_plugin_user plugin.
+        :param message: The message sent by the peek user.
 
-        :param message: The message to send to the user.
+        :param priority: The priority of this message sent.
 
-        :param priority: The priority of this message, some messages may be emergency 
-            messages.
-
-        :param onReadPayload: (Optional) The payload that will be delivered locally
-            on Peek Server when the user has read the message.
+        :param onReadPayload: The integrating plugin should deliver this payload locally
+            on the server service once the message has been delivered/read externally.
 
         """
         # From User
-        self.extFromUserId = self._required(extFromUserId, "extFromUserId")
-        self.extFromUserName = self._required(extFromUserName, "extFromUserName")
+        self.toExtUserId = toExtUserId
 
         # To User
-        self.toUserId = self._required(toUserId, "toUserId")
+        self.fromUserId = fromUserId
 
         # Message
-        self.message = self._required(message, "message")
-        self.priority = self._required(priority, "priority")
+        self.message = message
+        self.priority = priority
 
         # On Read Payload
         self.onReadPayload = onReadPayload
@@ -122,7 +119,7 @@ class ReceivedMessage:
 
 class ChatApiABC(metaclass=ABCMeta):
     @abstractmethod
-    def sendMessage(self, newMessage: NewMessage) -> None:
+    def sendMessage(self, newMessage: SendMessage) -> None:
         """ Send a Message
 
         Send a new chat message to a user.
@@ -132,12 +129,15 @@ class ChatApiABC(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def completeTask(self, extToUserId: str) -> Subject:
+    def receiveMessages(self, toExtUserId: str) -> Subject:
         """ Complete a Task
         
         Mark a task as complete. NOTE, This doesn't delete it.
         
-        :param extToUserId: The external systems userId, that the plugin wants to 
+        .. note:: Integrating plugins must tell the chat plugin when the message
+            has been read.
+        
+        :param toExtUserId: The external systems userId, that the plugin wants to 
             observe messages for. This is just identifier unique to the external
             system.
             

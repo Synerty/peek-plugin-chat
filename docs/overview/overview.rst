@@ -31,3 +31,15 @@ Here is an overview of the architecture of the plugin.
 .. image:: ChatPluginArchitectureDiagram.png
 
 
+Administration
+--------------
+
+Requirements
+````````````
+
+This plugin requires the following peek plugins :
+
+*   peek-plugin-active-task
+*   peek-plugin-user
+
+These dependencies are set in the python package.

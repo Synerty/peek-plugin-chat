@@ -9,8 +9,17 @@ def loadStorageTuples():
 
     """
 
-    from . import ChatMsgTuple
-    ChatMsgTuple.__unused = False
+    from . import MessageTuple
+    MessageTuple.__unused = False
 
     from . import Setting
     Setting.__unused = False
+
+    from . import Setting
+    Setting.__unused = False
+
+    from . import ConversationTuple
+    ConversationTuple.__unused = False
+
+    from . import ConversationUserTuple
+    ConversationUserTuple.__unused = False
