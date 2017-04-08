@@ -6,5 +6,8 @@ def loadPrivateTuples():
     serialised data.
 
     """
-    from . import SendChatMsgActionTuple
-    SendChatMsgActionTuple.__unused = False
+    from . import SendMessageActionTuple
+    SendMessageActionTuple.__unused = False
+
+    from . import CreateChatActionTuple
+    CreateChatActionTuple.__unused = False

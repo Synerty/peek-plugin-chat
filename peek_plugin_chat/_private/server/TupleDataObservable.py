@@ -1,8 +1,8 @@
 from peek_plugin_chat._private.PluginNames import chatFilt
 from peek_plugin_chat._private.PluginNames import chatObservableName
-from peek_plugin_chat._private.server.tuple_providers.ConversationTupleProvider import \
-    ConversationTupleProvider
-from peek_plugin_chat._private.storage.ConversationTuple import ConversationTuple
+from peek_plugin_chat._private.server.tuple_providers.ChatTupleProvider import \
+    ChatTupleProvider
+from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
 from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
 
 
@@ -22,7 +22,7 @@ def makeTupleDataObservableHandler(ormSessionCreator):
         additionalFilt=chatFilt)
 
     # Register TupleProviders here
-    tupleObservable.addTupleProvider(ConversationTuple.tupleName(),
-                                     ConversationTupleProvider(ormSessionCreator))
+    tupleObservable.addTupleProvider(ChatTuple.tupleName(),
+                                     ChatTupleProvider(ormSessionCreator))
 
     return tupleObservable

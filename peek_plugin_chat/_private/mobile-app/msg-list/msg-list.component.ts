@@ -1,13 +1,22 @@
-import {Component} from "@angular/core";
-import {Router} from "@angular/router";
-import {chatBaseUrl, MessageTuple, SendChatMsgActionTuple} from "@peek/peek_plugin_chat/_private";
+import {Component, OnInit} from "@angular/core";
+import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
+import {ActivatedRoute, Params, Router} from "@angular/router";
+import {
+    chatBaseUrl,
+    ChatTuple,
+    MessageTuple,
+    SendMessageActionTuple
+} from "@peek/peek_plugin_chat/_private";
 
-import {UserService} from "@peek/peek_plugin_user"
+import {TitleService} from "@synerty/peek-mobile-util";
+import {UserService} from "@peek/peek_plugin_user";
 
 import {
     ComponentLifecycleEventEmitter,
+    TupleActionPushOfflineService,
     TupleActionPushService,
     TupleDataObserverService,
+    TupleDataOfflineObserverService,
     TupleSelector
 } from "@synerty/vortexjs";
 
@@ -16,44 +25,74 @@ import {
     templateUrl: 'msg-list.component.mweb.html',
     moduleId: module.id
 })
-export class MsgListComponent extends ComponentLifecycleEventEmitter {
+export class MsgListComponent extends ComponentLifecycleEventEmitter implements OnInit {
 
-    messages: Array<MessageTuple> = [];
+    chat: ChatTuple = new ChatTuple();
 
-    constructor(private actionService: TupleActionPushService,
+    newMessageText: string = "";
+
+    constructor(private balloonMsg: Ng2BalloonMsgService,
+                private actionService: TupleActionPushService,
                 private tupleDataObserver: TupleDataObserverService,
+                private tupleDataOfflineObserver: TupleDataOfflineObserverService,
+                private tupleOfflineAction: TupleActionPushOfflineService,
+                private route: ActivatedRoute,
                 private router: Router,
-                private userService:UserService) {
+                private userService: UserService,
+                titleService: TitleService) {
         super();
+        titleService.setTitle("Chat");
+    }
 
-        // Create the TupleSelector to tell the obserbable what data we want
-        let selector = {};
-        selector["userId"] = "userId";
-        let tupleSelector = new TupleSelector(MessageTuple.tupleName, selector);
 
-        // Setup a subscription for the data
-        let sup = tupleDataObserver.subscribeToTupleSelector(tupleSelector)
-            .subscribe((tuples: MessageTuple[]) => {
-                // We've got new data, assign it to our class variable
-                this.messages = tuples;
+    // ---- Data manipulation methods
+    ngOnInit() {
+        this.route.params.subscribe((params: Params) => {
+            let chatId = parseInt(params['chatId']);
+            this.loadChat(chatId);
+        });
+
+    }
+
+    private loadChat(chatId: number) {
+
+
+        let tupleSelector = new TupleSelector(ChatTuple.tupleName, {chatId: chatId});
+
+        let sup = this.tupleDataOfflineObserver.subscribeToTupleSelector(tupleSelector)
+            .subscribe((tuples: ChatTuple[]) => {
+                this.chat = tuples[0];
+
             });
-
-        // unsubscribe when this component is destroyed
-        // This is a feature of ComponentLifecycleEventEmitter
         this.onDestroyEvent.subscribe(() => sup.unsubscribe());
 
     }
 
+    // ---- Display methods
+    haveMessages(): boolean {
+        return this.chat != null && this.chat.messages.length !== 0;
+    }
+
+    sendEnabled(): boolean {
+        return this.newMessageText.length != 0;
+    }
+
+    // ---- User Input methods
     mainClicked() {
         this.router.navigate([chatBaseUrl]);
     }
 
     sendMsgClicked(item) {
-        let action = new SendChatMsgActionTuple();
-        action.stringIntId = item.id;
+        let action = new SendMessageActionTuple();
+        action.chatId = this.chat.id;
+        action.fromUserId = this.userService.userDetails.userId;
+        action.message = this.newMessageText;
+        action.priority = MessageTuple.PRIORITY_NORMAL;
+
         this.actionService.pushAction(action)
             .then(() => {
-                alert('success');
+                this.newMessageText = '';
+                this.balloonMsg.showSuccess("Message Sent");
 
             })
             .catch((err) => {

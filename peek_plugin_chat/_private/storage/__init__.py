@@ -18,8 +18,8 @@ def loadStorageTuples():
     from . import Setting
     Setting.__unused = False
 
-    from . import ConversationTuple
-    ConversationTuple.__unused = False
+    from . import ChatTuple
+    ChatTuple.__unused = False
 
-    from . import ConversationUserTuple
-    ConversationUserTuple.__unused = False
+    from . import ChatUserTuple
+    ChatUserTuple.__unused = False

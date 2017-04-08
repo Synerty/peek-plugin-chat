@@ -9,9 +9,9 @@ from vortex.Tuple import Tuple, addTupleType, TupleField
 
 
 @addTupleType
-class ConversationTuple(Tuple, DeclarativeBase):
-    __tupleType__ = chatTuplePrefix + 'ConversationTuple'
-    __tablename__ = 'ConversationTuple'
+class ChatTuple(Tuple, DeclarativeBase):
+    __tupleType__ = chatTuplePrefix + 'ChatTuple'
+    __tablename__ = 'ChatTuple'
 
     # This will include the users relationship when serialising the data
     __fieldNames__ = ["users"]
@@ -24,6 +24,6 @@ class ConversationTuple(Tuple, DeclarativeBase):
 
     # Use a TupleField instead of a relationship so we can decide when it will
     # include the messages or not.
-    messages = TupleField()  # relationship("Message.convId")
+    messages = TupleField()  # relationship("Message.chatId")
 
-    users = relationship("ConversationUserTuple", lazy='joined')
+    users = relationship("ChatUserTuple", lazy='joined')

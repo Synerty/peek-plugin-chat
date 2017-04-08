@@ -14,7 +14,7 @@ export class ChatComponent {
     }
 
     chatMsgClicked() {
-        this.router.navigate([chatBaseUrl, 'conversations']);
+        this.router.navigate([chatBaseUrl, 'chats']);
     }
 
 }

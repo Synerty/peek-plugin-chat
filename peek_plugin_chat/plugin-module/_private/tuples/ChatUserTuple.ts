@@ -3,12 +3,12 @@ import {chatTuplePrefix} from "../PluginNames";
 
 
 @addTupleType
-export class ConversationUserTuple extends Tuple {
-    public static readonly tupleName = chatTuplePrefix + "ConversationUserTuple";
+export class ChatUserTuple extends Tuple {
+    public static readonly tupleName = chatTuplePrefix + "ChatUserTuple";
 
     //  Description of date1
     id: number;
-    convId: number;
+    chatId: number;
 
     // User to / from
     userId: string;
@@ -18,6 +18,6 @@ export class ConversationUserTuple extends Tuple {
     userName: string;
 
     constructor() {
-        super(ConversationUserTuple.tupleName)
+        super(ChatUserTuple.tupleName)
     }
 }

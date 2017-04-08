@@ -1,0 +1,25 @@
+<div class="container">
+
+    <!--TRANSITION WITH REASON DIALOG -->
+<pl-chat-new-chat
+        *ngIf="isNewChatDialogShown()"
+        (create)="dialogConfirmed($event)"
+        (cancel)="dialogCanceled()"
+        [data]="newChatDialogData">
+
+</pl-chat-new-chat>
+
+    <Button class="btn btn-default" (click)="mainClicked()">Back to Main</Button>
+    <Button class="btn btn-default" (click)="newChatClicked()">New Chat</Button>
+
+
+    <div class="row" *ngFor="let item of chats"
+    (click)="chatClicked(item)">
+        <div class="col-sm-12">
+            <span class="label label-success"
+                  *ngFor="let user of item.users">{{user.userId}}</span>
+            <button><fa  name="angle-right" ></fa></button>
+        </div>
+    </div>
+
+</div>

@@ -2,22 +2,24 @@
     <Button class="btn btn-default" (click)="mainClicked()">Back to Main</Button>
 
 
-    <div class="row" *ngFor="let item of messages">
+    <p *ngIf="!haveMessages()">No messages</p>
+
+    <div class="row" *ngFor="let msg of chat.messages">
         <div class="col-sm-12">
-            <td>{{item.string1}}</td>
-            <td>{{item.int1}}</td>
+            <p>{{msg.message}}</p>
         </div>
     </div>
 
     <div class="row">
         <div class="col-sm-12">
             <div class="input-group">
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" [(ngModel)]="newMessageText">
                 <span class="input-group-btn">
                     <button class="btn btn-default" type="button"
+                            [disabled]="!sendEnabled()"
                             (click)="sendMsgClicked()">Send</button>
                 </span>
-            </div><!-- /input-group -->
-        </div><!-- /.col-lg-6 -->
-    </div><!-- /.row -->
+            </div>
+        </div>
+    </div>
 </div>

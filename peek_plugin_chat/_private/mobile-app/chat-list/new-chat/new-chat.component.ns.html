@@ -1,0 +1,20 @@
+<StackLayout class="m-10">
+    <StackLayout row="0" col="0" class="input-field"
+                 horizontalAlignment="stretch">
+        <Label class="h3 p-15 text-left" text="{{inputData.actionName}} Reason:"></Label>
+        <ListPicker #picker class="p-15"
+                        [items]="lookupOptionStrings"
+                        (selectedIndexChange)="reasonIndex = picker.selectedIndex">
+        </ListPicker>
+    </StackLayout>
+
+
+    <GridLayout columns="*,*" rows="auto" width="*">
+        <Button col="0" [text]="inputData.actionName"
+                (tap)="confirmClicked(true)"></Button>
+        <Button col="1" text="Cancel"
+                (tap)="cancelClicked(true)">
+        </Button>
+    </GridLayout>
+
+</StackLayout>

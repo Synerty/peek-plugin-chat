@@ -8,11 +8,13 @@ export class MessageTuple extends Tuple {
 
     //  Description of date1
     id: number;
-    convId: number;
+    chatId: number;
 
     // Message details
     message: string;
     priority: number;
+    public static readonly PRIORITY_EMERGENCY = 1;
+    public static readonly PRIORITY_NORMAL = 2;
 
     // User to / from
     fromUserId: string;
@@ -22,9 +24,9 @@ export class MessageTuple extends Tuple {
 
     //  These indicate the message state
     state: number;
-    public static readonly STATE_NEW = 1
-    public static readonly STATE_DELIVERED = 2
-    public static readonly STATE_READ = 3
+    public static readonly STATE_NEW = 1;
+    public static readonly STATE_DELIVERED = 2;
+    public static readonly STATE_READ = 3;
 
     // onReadPayload = Column(PeekVarBinary)
 

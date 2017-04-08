@@ -1,12 +1,12 @@
 import {addTupleType, Tuple} from "@synerty/vortexjs";
 import {chatTuplePrefix} from "../PluginNames";
-import {ConversationUserTuple} from "./ConversationUserTuple";
+import {ChatUserTuple} from "./ChatUserTuple";
 import {MessageTuple} from "./MessageTuple";
 
 
 @addTupleType
-export class ConversationTuple extends Tuple {
-    public static readonly tupleName = chatTuplePrefix + "ConversationTuple";
+export class ChatTuple extends Tuple {
+    public static readonly tupleName = chatTuplePrefix + "ChatTuple";
 
     //  Description of date1
     id: number;
@@ -15,10 +15,10 @@ export class ConversationTuple extends Tuple {
     hasUnreads: boolean;
     lastActivity: Date;
 
-    messages: MessageTuple[];
-    users: ConversationUserTuple[];
+    messages: MessageTuple[] = [];
+    users: ChatUserTuple[] = [];
 
     constructor() {
-        super(ConversationTuple.tupleName)
+        super(ChatTuple.tupleName)
     }
 }

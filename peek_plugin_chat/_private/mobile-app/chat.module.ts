@@ -1,5 +1,6 @@
 import {CommonModule} from "@angular/common";
 import {NgModule} from "@angular/core";
+import {LoggedInGuard} from "@peek/peek_plugin_user";
 import {Routes} from "@angular/router";
 // Import the required classes from VortexJS
 import {
@@ -24,7 +25,9 @@ import {
 // Import the default route component
 import {ChatComponent} from "./chat.component";
 import {MsgListComponent} from "./msg-list/msg-list.component";
-import {ConvListComponent} from "./conv-list/conv-list.component";
+import {ChatListComponent} from "./chat-list/chat-list.component";
+import {pluginRoutes} from "./chat.routes";
+import {NewChatComponent} from "./chat-list/new-chat/new-chat.component";
 
 
 export function tupleOfflineStorageNameServiceFactory() {
@@ -41,26 +44,7 @@ export function tupleActionPushNameServiceFactory() {
         chatActionProcessorName, chatFilt);
 }
 
-// Define the child routes for this plugin
-export const pluginRoutes: Routes = [
-    {
-        path: 'messages',
-        component: MsgListComponent
-    },
-    {
-        path: 'conversations',
-        component: ConvListComponent
-    },
-    {
-        path: '',
-        component: ChatComponent
-    },
-    {
-        path: '**',
-        component: ChatComponent
-    }
 
-];
 
 // Define the root module for this plugin.
 // This module is loaded by the lazy loader, what ever this defines is what is started.
@@ -68,9 +52,12 @@ export const pluginRoutes: Routes = [
 @NgModule({
     imports: [
         CommonModule,
-        PeekModuleFactory.RouterModule.forChild(pluginRoutes)],
+        PeekModuleFactory.RouterModule.forChild(pluginRoutes),
+        ...PeekModuleFactory.FormsModules
+    ],
     exports: [],
     providers: [
+        LoggedInGuard,
         TupleOfflineStorageService,
         {
             provide: TupleOfflineStorageNameService,
@@ -88,7 +75,7 @@ export const pluginRoutes: Routes = [
             useFactory: tupleActionPushNameServiceFactory
         },
     ],
-    declarations: [ChatComponent, MsgListComponent, ConvListComponent]
+    declarations: [ChatComponent, MsgListComponent, ChatListComponent, NewChatComponent]
 })
 export class ChatModule {
 }
