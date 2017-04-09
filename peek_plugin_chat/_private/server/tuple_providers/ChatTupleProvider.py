@@ -1,3 +1,4 @@
+from sqlalchemy import desc
 from twisted.internet.defer import Deferred
 from txhttputil.util.DeferUtil import deferToThreadWrap
 from typing import Union
@@ -49,7 +50,7 @@ class ChatTupleProvider(TuplesProviderABC):
                 chats = (session.query(ChatTuple)
                          .join(ChatUserTuple, ChatUserTuple.chatId == ChatTuple.id)
                          .filter(ChatUserTuple.userId == userId)
-                         .order_by(ChatTuple.lastActivity)
+                         .order_by(desc(ChatTuple.lastActivity))
                          .all())
 
             # Create the vortex message

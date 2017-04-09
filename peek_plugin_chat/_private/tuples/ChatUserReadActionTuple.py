@@ -6,8 +6,8 @@ from vortex.TupleAction import TupleActionABC
 
 
 @addTupleType
-class ChatReadActionTuple(TupleActionABC):
-    __tupleType__ = chatTuplePrefix + "ChatReadActionTuple"
+class ChatUserReadActionTuple(TupleActionABC):
+    __tupleType__ = chatTuplePrefix + "ChatUserReadActionTuple"
 
     chatUserId = TupleField(typingType=int)
     readDateTime = TupleField(typingType=datetime)

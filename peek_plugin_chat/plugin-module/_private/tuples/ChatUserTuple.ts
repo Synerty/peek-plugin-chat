@@ -16,7 +16,6 @@ export class ChatUserTuple extends Tuple {
 
     // User to / from
     lastReadDate: Date;
-    hasUnreads: boolean;
 
     // // Message state details
     // userName: string;

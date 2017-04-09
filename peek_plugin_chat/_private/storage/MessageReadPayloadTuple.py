@@ -2,11 +2,12 @@ from sqlalchemy import Column, ForeignKey
 from sqlalchemy import Integer, Index
 from sqlalchemy.sql.sqltypes import LargeBinary
 
-from peek_plugin_chat._private.PluginNames import chatTuplePrefix
-from peek_plugin_chat._private.storage.ChatUserTuple import ChatUserTuple
-from peek_plugin_chat._private.storage.DeclarativeBase import DeclarativeBase
-from peek_plugin_chat._private.storage.MessageTuple import MessageTuple
 from vortex.Tuple import Tuple, addTupleType
+
+from peek_plugin_chat._private.PluginNames import chatTuplePrefix
+from .ChatUserTuple import ChatUserTuple
+from .DeclarativeBase import DeclarativeBase
+from .MessageTuple import MessageTuple
 
 
 @addTupleType

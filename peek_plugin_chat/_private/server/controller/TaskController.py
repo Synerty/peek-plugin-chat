@@ -34,14 +34,14 @@ class TaskController:
         self._deliveredEndpoint = None
         self._soapController = None
 
-    def _makeUniqueId(self, chat: ChatTuple, userId: str):
-        return "peek_plugin_chat.new_message.%s.%s" % (userId, chat.id)
+    def _makeUniqueId(self, chatId: int, userId: str):
+        return "peek_plugin_chat.new_message.%s.%s" % (userId, chatId)
 
     def _makeTaskTitle(self, message: MessageTuple):
         if message.priority == MessageTuple.PRIORITY_EMERGENCY:
-            return "EMERGENCY SOS CHAT MESSAGE"
+            return "EMERGENCY SOS CHAT MESSAGE FROM %s" % message.fromUserId
 
-        return "You have a new chat message"
+        return "You have a new chat message from %s" % message.fromUserId
 
     def _makeMessagesRoutePath(self, chatTuple: ChatTuple):
         return "/peek_plugin_chat/messages/%s" % chatTuple.id
@@ -80,7 +80,7 @@ class TaskController:
 
             for userId in userIds:
                 newTask = NewTask(
-                    uniqueId=self._makeUniqueId(chat, userId),
+                    uniqueId=self._makeUniqueId(chat.id, userId),
                     userId=userId,
                     title=self._makeTaskTitle(message),
                     displayAs=NewTask.DISPLAY_AS_MESSAGE,
@@ -95,6 +95,18 @@ class TaskController:
 
                 yield self._activeTaskPluginApi.addTask(newTask)
 
+
+        except Exception as e:
+            logger.exception(e)
+
+    @inlineCallbacks
+    def removeTask(self, chatId: int, userId: str):
+        try:
+            yield self._activeTaskPluginApi.removeTask(self._makeUniqueId(chatId, userId))
+
+        except ValueError:
+            # This means it didn't exist.
+            pass
 
         except Exception as e:
             logger.exception(e)

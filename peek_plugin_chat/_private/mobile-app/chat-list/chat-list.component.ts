@@ -29,6 +29,7 @@ export class ChatListComponent extends ComponentLifecycleEventEmitter {
     chats: Array<ChatTuple> = [];
 
     newChatDialogData: NewChatDialogData = null;
+    private userId: string;
 
     constructor(private balloonMsg: Ng2BalloonMsgService,
                 private actionService: TupleActionPushService,
@@ -39,9 +40,11 @@ export class ChatListComponent extends ComponentLifecycleEventEmitter {
         super();
         titleService.setTitle("Chats");
 
+        this.userId = userService.userDetails.userId;
+
         // Create the TupleSelector to tell the observable what data we want
         let tupleSelector = new TupleSelector(ChatTuple.tupleName, {
-            userId: userService.loggedInUserDetails.userId
+            userId: this.userId
         });
 
         // Setup a subscription for the data
@@ -86,7 +89,7 @@ export class ChatListComponent extends ComponentLifecycleEventEmitter {
 
     // ---- Display methods
 
-    userDisplayName(chatUser:ChatUserTuple): string {
+    userDisplayName(chatUser: ChatUserTuple): string {
         return this.userService.userDisplayName(chatUser.userId);
     }
 
@@ -94,7 +97,17 @@ export class ChatListComponent extends ComponentLifecycleEventEmitter {
         return this.newChatDialogData != null;
     }
 
+    otherChatUsers(chat: ChatTuple): ChatUserTuple[] {
+        return chat.users.filter(cu => cu.userId != this.userId);
+    }
+
+    isChatRead(chat: ChatTuple): boolean {
+        let chatUser = chat.users.filter(cu => cu.userId == this.userId)[0];
+        return chat.lastActivity <= chatUser.lastReadDate;
+    }
+
     dialogConfirmed(data: NewChatDialogData) {
+        // Check if this is a unique chat.
         this.createChat(data);
 
         this.newChatDialogData = null;

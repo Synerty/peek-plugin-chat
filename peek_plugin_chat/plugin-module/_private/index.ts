@@ -3,5 +3,5 @@ export {ChatUserTuple} from "./tuples/ChatUserTuple";
 export {ChatTuple} from "./tuples/ChatTuple";
 export {SendMessageActionTuple} from "./tuples/SendMessageActionTuple";
 export {CreateChatActionTuple} from "./tuples/CreateChatActionTuple";
-export {ChatReadActionTuple} from "./tuples/ChatReadActionTuple";
+export {ChatUserReadActionTuple} from "./tuples/ChatUserReadActionTuple";
 export * from "./PluginNames";

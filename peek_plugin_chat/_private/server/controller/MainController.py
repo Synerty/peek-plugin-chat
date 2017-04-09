@@ -1,20 +1,22 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from twisted.internet.task import LoopingCall
 
-from peek_plugin_active_task._private.storage.Activity import Activity
-from peek_plugin_active_task._private.storage.Task import Task
 from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
 from peek_plugin_chat._private.storage.ChatUserTuple import ChatUserTuple
+from peek_plugin_chat._private.storage.MessageReadPayloadTuple import \
+    MessageReadPayloadTuple
 from peek_plugin_chat._private.storage.MessageTuple import MessageTuple
-from peek_plugin_chat._private.tuples.ChatReadActionTuple import ChatReadActionTuple
+from peek_plugin_chat._private.tuples.ChatUserReadActionTuple import \
+    ChatUserReadActionTuple
 from peek_plugin_chat._private.tuples.CreateChatActionTuple import CreateChatActionTuple
 from peek_plugin_chat._private.tuples.SendMessageActionTuple import SendMessageActionTuple
 from peek_plugin_user.server.UserDbServerApiABC import UserDbServerApiABC
 from vortex.DeferUtil import vortexLogFailure, deferToThreadWrapWithLogger
 from vortex.TupleAction import TupleActionABC
 from vortex.TupleSelector import TupleSelector
+from vortex.VortexFactory import VortexFactory
 from vortex.handler.TupleActionProcessor import TupleActionProcessorDelegateABC
 from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
 from .TaskController import TaskController
@@ -23,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 class MainController(TupleActionProcessorDelegateABC):
-    PROCESS_PERIOD = 5.0
+    PROCESS_PERIOD = 600.0  # 10 minutes
 
     def __init__(self, dbSessionCreator,
                  userPluginApi: UserDbServerApiABC,
@@ -71,13 +73,13 @@ class MainController(TupleActionProcessorDelegateABC):
         )
 
     def processTupleAction(self, tupleAction: TupleActionABC):
-        if isinstance(tupleAction, SendMessageActionTuple):
-            return self._processSendMessageAction(tupleAction)
-
         if isinstance(tupleAction, CreateChatActionTuple):
             return self._processCreateChatAction(tupleAction)
 
-        if isinstance(tupleAction, ChatReadActionTuple):
+        if isinstance(tupleAction, SendMessageActionTuple):
+            return self._processSendMessageAction(tupleAction)
+
+        if isinstance(tupleAction, ChatUserReadActionTuple):
             return self._processChatReadAction(tupleAction)
 
         raise Exception("Unhandled tuple action %s" % tupleAction.tupleType())
@@ -89,6 +91,59 @@ class MainController(TupleActionProcessorDelegateABC):
         This method is used to notify the main controller when a new message has
         been queued from an external system.
         """
+
+    @deferToThreadWrapWithLogger(logger)
+    def _processCreateChatAction(self, action: CreateChatActionTuple):
+        """ Process Create Chat action by user
+
+        Process updates to the task from the UI.
+
+        """
+        session = self._ormSessionCreator()
+        allUserIds = action.userIds + [action.fromUserId]
+
+        usersKey = ','.join(sorted(allUserIds))
+
+        try:
+            # Check if there is an existing chat
+            chatTuple = (session
+                         .query(ChatTuple)
+                         .filter(ChatTuple.usersKey == usersKey)
+                         .all())
+
+            # Convert from the array
+            chatTuple = chatTuple[0] if chatTuple else None
+
+            if chatTuple:  # There is an existing one.
+                # Bump the chat to the top.
+                chatTuple.lastActivity = datetime.utcnow()
+
+            else:
+                # Create the new chat tuple
+                chatTuple = ChatTuple()
+                chatTuple.lastActivity = datetime.utcnow()
+                chatTuple.usersKey = usersKey
+                session.add(chatTuple)
+
+                for userId in allUserIds:
+                    chatUserTuple = ChatUserTuple()
+                    chatUserTuple.userId = userId
+                    chatUserTuple.lastReadDate = datetime.utcnow()
+                    chatUserTuple.isUserExternal = False
+                    chatUserTuple.userName = userId
+
+                    chatTuple.users.append(chatUserTuple)
+                    session.add(chatUserTuple)
+
+            session.commit()
+
+            # chatId = chatTuple.id
+
+        finally:
+            session.close()
+
+        for userId in allUserIds:
+            self._notifyOfChatListUpdate(userId)
 
     @deferToThreadWrapWithLogger(logger)
     def _processSendMessageAction(self, action: SendMessageActionTuple):
@@ -105,6 +160,15 @@ class MainController(TupleActionProcessorDelegateABC):
                          .filter(ChatTuple.id == action.chatId)
                          .one())
 
+            # Get the IDs needed for the updates
+            userIds = [chatUser.userId for chatUser in chatTuple.users]
+            chatId = chatTuple.id
+
+            # Get the chat user for this user, sending a message implies they
+            # have read upto date.
+            chatUserTuple = list(filter(lambda cu: cu.userId == action.fromUserId,
+                                   chatTuple.users))[0]
+
             # Create the new chat tuple
             messageTuple = MessageTuple()
             messageTuple.chatId = chatTuple.id
@@ -112,19 +176,17 @@ class MainController(TupleActionProcessorDelegateABC):
             messageTuple.message = action.message
             messageTuple.priority = action.priority
             messageTuple.dateTime = datetime.utcnow()
-            messageTuple.state = MessageTuple.STATE_NEW
             session.add(messageTuple)
 
+            # Update the last activity and lastReadDate for the sender
             chatTuple.lastActivity = datetime.utcnow()
-            chatTuple.hasUnreads = True
+            chatUserTuple.lastReadDate = datetime.utcnow()
 
-            # Get the IDs needed for the updates
-            userIds = [chatUser.userId for chatUser in chatTuple.users]
-            chatId = chatTuple.id
-
+            # Commit the changes.
             session.commit()
 
-            alertUserIds = list(filter(lambda s : s != action.fromUserId, userIds))
+            # Send alerts to the other users.
+            alertUserIds = list(filter(lambda s: s != action.fromUserId, userIds))
             self._taskController.addTask(chatTuple, messageTuple, alertUserIds)
 
 
@@ -136,132 +198,50 @@ class MainController(TupleActionProcessorDelegateABC):
 
         self._notifyOfChatUpdate(chatId)
 
-
-        '''
-        taskId = tupleAction.data["id"]
-        session = self._ormSessionCreator()
-        try:
-            task = session.query(Task).filter(Task.id == taskId).one()
-            userId = task.userId
-            wasDelivered = task.stateFlags & Task.STATE_DELIVERED
-            wasCompleted = task.stateFlags & Task.STATE_COMPLETED
-
-            if tupleAction.data.get("stateFlags") is not None:
-                newFlags = tupleAction.data["stateFlags"]
-                task.stateFlags = (task.stateFlags | newFlags)
-
-            if tupleAction.data.get("notificationSentFlags") is not None:
-                mask = tupleAction.data["notificationSentFlags"]
-                task.notificationSentFlags = (task.notificationSentFlags | mask)
-
-            if task.autoComplete & task.stateFlags:
-                task.stateFlags = (task.stateFlags | Task.STATE_COMPLETED)
-
-            autoDelete = task.autoDelete
-            stateFlags = task.stateFlags
-            onDeletedPayload = task.onDeletedPayload
-
-            # Commit the updates.
-            session.commit()
-
-            newDelivery = not wasDelivered and (newFlags & Task.STATE_DELIVERED)
-            if newDelivery and task.onDeliveredPayload:
-                VortexFactory.sendVortexMsgLocally(task.onDeliveredPayload)
-
-            newCompleted = not wasCompleted and (newFlags & Task.STATE_COMPLETED)
-            if newCompleted and task.onCompletedPayload:
-                VortexFactory.sendVortexMsgLocally(task.onCompletedPayload)
-
-            if autoDelete & stateFlags:
-                (session.query(Task)
-                 .filter(Task.id == taskId)
-                 .delete(synchronize_session=False))
-                session.commit()
-
-                if onDeletedPayload:
-                    VortexFactory.sendVortexMsgLocally(onDeletedPayload)
-
-            self._notifyObserver(Task.tupleName(), userId)
-
-        except NoResultFound:
-            logger.debug("_processTaskUpdate Task %s has already been deleted" % taskId)
-
-        finally:
-            session.close()
-        '''
-
     @deferToThreadWrapWithLogger(logger)
-    def _processCreateChatAction(self, action: CreateChatActionTuple):
-        """ Process Create Chat action by user
+    def _processChatReadAction(self, action: ChatUserReadActionTuple):
+        """ Process Create Chat Read action
 
-        Process updates to the task from the UI.
+        Updates the last read date for the user, sends any waiting payloads fo those
+        messages
 
         """
         session = self._ormSessionCreator()
 
         try:
-            # Create the new chat tuple
-            chatTuple = ChatTuple()
-            chatTuple.lastActivity = datetime.utcnow()
-            chatTuple.hasUnreads = False
-            session.add(chatTuple)
+            # Find the chat user and update the last read date.
+            chatUser = (session
+                        .query(ChatUserTuple)
+                        .filter(ChatUserTuple.id == action.chatUserId)
+                        .one())
 
-            for userId in action.userIds + [action.fromUserId]:
-                chatUserTuple = ChatUserTuple()
-                chatUserTuple.userId = userId
-                chatUserTuple.isUserExternal = False
-                chatUserTuple.userName = userId
+            chatId = chatUser.chatId
+            userId = chatUser.userId
 
-                chatTuple.users.append(chatUserTuple)
-                session.add(chatUserTuple)
+            chatUser.lastReadDate = action.readDateTime
 
-            session.commit()
+            # Send any onRead payloads that are required, and cleanup.
+            msgPayloads = (session
+                           .query(MessageReadPayloadTuple)
+                           .join(MessageTuple,
+                                 MessageTuple.id == MessageReadPayloadTuple.messageId)
+                           .filter(MessageTuple.dateTime <= action.readDateTime)
+                           .filter(MessageReadPayloadTuple.chatUserId == chatUser.id)
+                           .all())
 
-            # chatId = chatTuple.id
+            for msgPayload in msgPayloads:
+                if msgPayload.onReadPayload:
+                    VortexFactory.sendVortexMsgLocally(msgPayload.onReadPayload)
 
-        finally:
-            session.close()
-
-        for userId in action.userIds:
-            self._notifyOfChatListUpdate(userId)
-
-    @deferToThreadWrapWithLogger(logger)
-    def _processChatReadAction(self, action: ChatReadActionTuple):
-        """ Process Create Chat action by user
-
-        Process updates to the task from the UI.
-
-        """
-        '''
-        session = self._ormSessionCreator()
-
-        try:
-            # Create the new chat tuple
-            chatTuple = ChatTuple()
-            chatTuple.lastActivity = datetime.utcnow()
-            chatTuple.hasUnreads = False
-            session.add(chatTuple)
-
-            for userId in action.userIds + [action.fromUserId]:
-                chatUserTuple = ChatUserTuple()
-                chatUserTuple.userId = userId
-                chatUserTuple.isUserExternal = False
-                chatUserTuple.userName = userId
-
-                chatTuple.users.append(chatUserTuple)
-                session.add(chatUserTuple)
+                session.delete(msgPayload)
 
             session.commit()
 
-            # chatId = chatTuple.id
+            # Remove the unread message if there are any
+            self._taskController.removeTask(chatId, userId)
 
         finally:
             session.close()
-
-        for userId in action.userIds:
-            self._notifyOfChatListUpdate(userId)
-        
-        '''
 
     # -------------------------------------------------------
     # Delete Old Messages
@@ -269,33 +249,41 @@ class MainController(TupleActionProcessorDelegateABC):
     @deferToThreadWrapWithLogger(logger)
     def _deleteOnDateTime(self):
         session = self._ormSessionCreator()
-        usersToNotify = set()
+        # chatUsersIdsToUpdate = set()
 
         try:
-            activitiesToExpire = (
-                session
-                    .query(Activity)
-                    .filter(Activity.autoDeleteDateTime < datetime.utcnow())
+            expiredMessageDate = datetime.utcnow() - timedelta(days=2)
+            expiredChatDate = datetime.utcnow() - timedelta(days=5)
+
+            # Query for the chats to delete
+            chatUsersIdsToUpdate = set(
+                map(lambda i: i[0],
+                    session.query(ChatUserTuple.userId)
+                    .join(ChatTuple, ChatTuple.id == ChatUserTuple.chatId)
+                    .filter(ChatTuple.lastActivity < expiredChatDate)
+                    )
             )
 
-            for activity in activitiesToExpire:
-                usersToNotify.add(activity.userId)
-                session.delete(activity)
-
-            tasksToExpire = (
+            # No updates required for message expiration, just delete them.
+            (
                 session
-                    .query(Task)
-                    .filter(Task.autoDeleteDateTime < datetime.utcnow())
+                    .query(MessageTuple)
+                    .filter(MessageTuple.dateTime < expiredMessageDate)
+                    .delete()
             )
 
-            for task in tasksToExpire:
-                usersToNotify.add(task.userId)
-                session.delete(task)
+            # Delete Chats
+            (
+                session
+                    .query(ChatTuple)
+                    .filter(ChatTuple.lastActivity < expiredChatDate)
+                    .delete()
+            )
 
             session.commit()
 
         finally:
             session.close()
 
-        for userId in usersToNotify:
-            self._notifyObserver(Activity.tupleName(), userId)
+        for userId in chatUsersIdsToUpdate:
+            self._notifyOfChatListUpdate(userId)

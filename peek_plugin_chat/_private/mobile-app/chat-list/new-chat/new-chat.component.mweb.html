@@ -1,33 +1,33 @@
 <div [@dialogAnimation]="dialogAnimationState"
      (@dialogAnimation.done)="animationDone($event)">
 
-    <h2>New Chat</h2>
+    <h2>Start a chat wth :</h2>
 
-    Users :
     <p *ngIf="!createButtonEnabled()">No users selected</p>
     <ul>
         <li *ngFor="let u of data.users">{{u.displayName}}</li>
     </ul>
 
-    Add User :
-        <div class="form-group">
-            <label for="userIdField">Add User:</label>
-            <select id="userIdField" class="form-control" name="userId"
-                    [(ngModel)]="selectedUserId">
-                <option [value]="user.userId" *ngFor="let user of users">
-                    {{user.displayName}} ({{user.userId}})
-                </option>
-            </select>
-        </div>
+    <div class="form-group">
+        <label for="userIdField">Add User:</label>
+        <select id="userIdField" class="form-control" name="userId"
+                [(ngModel)]="selectedUserId">
+            <option [value]="user.userId" *ngFor="let user of users">
+                {{user.displayName}} ({{user.userId}})
+            </option>
+        </select>
+    </div>
 
 
     <!--BEGIN HANDBACK DIALOG -->
     <div>
-        <Button class="btn btn-default" (click)="addUserClicked()" [disabled]="!newButtonEnabled()">
+        <Button class="btn btn-default" (click)="addUserClicked()"
+                [disabled]="!newButtonEnabled()">
             Add User
         </Button>
 
-        <Button class="btn btn-default" (click)="confirmClicked(false)" [disabled]="!createButtonEnabled()">
+        <Button class="btn btn-default" (click)="confirmClicked(false)"
+                [disabled]="!createButtonEnabled()">
             Create Chat
         </Button>
 

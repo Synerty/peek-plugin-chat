@@ -4,31 +4,37 @@
     </Button>
 </div>
 
-<div class="container" style="overflow-y: scroll; max-height: 500pt">
-    <p *ngIf="!haveMessages()">No messages</p>
+<div class="container" style="overflow-y: scroll; max-height: 400pt; min-height: 400pt">
+    <template ngFor let-msg [ngForOf]="messages()" let-i="index">
+        <p *ngIf="!haveMessages()">No messages</p>
 
-    <div class="row" *ngFor="let msg of messages()">
-        <div class="col-xs-12" [class.text-right]="!isMessageFromThisUser(msg)">
-            <small *ngIf="!isMessageFromThisUser(msg)">
-                From {{userDisplayName(msg)}} ({{msg.fromUserId}}), {{timePast(msg)}} ago
-            </small>
-            <small *ngIf="isMessageFromThisUser(msg)">
-                {{timePast(msg)}} ago
-            </small>
+        <div class="row">
+            <!-- Unread marker -->
+            <hr *ngIf="isFirstUnreadMesage(i)"/>
+
+            <div class="col-xs-12" [class.text-right]="!isMessageFromThisUser(msg)">
+                <small *ngIf="!isMessageFromThisUser(msg)">
+                    From {{userDisplayName(msg)}} ({{msg.fromUserId}}), {{timePast(msg)}}
+                    ago
+                </small>
+                <small *ngIf="isMessageFromThisUser(msg)">
+                    {{timePast(msg)}} ago
+                </small>
+            </div>
+            <div class="col-xs-8"
+                 [class.col-xs-offset-4]="!isMessageFromThisUser(msg)"
+                 [class.bg-success]="isNormalPriority(msg)"
+                 [class.bg-danger]="isEmergencyPriority(msg)"
+                 [class.text-right]="!isMessageFromThisUser(msg)">
+
+                <h5 *ngIf="isNormalPriority(msg)" style="white-space: pre"
+                >{{msg.message}}</h5>
+                <h4 *ngIf="isEmergencyPriority(msg)" style="white-space: pre"
+                >{{msg.message}}</h4>
+
+            </div>
         </div>
-        <div class="col-xs-8"
-             [class.col-xs-offset-4]="!isMessageFromThisUser(msg)"
-             [class.bg-success]="isNormalPriority(msg)"
-             [class.bg-danger]="isEmergencyPriority(msg)"
-             [class.text-right]="!isMessageFromThisUser(msg)">
-
-            <h5 *ngIf="isNormalPriority(msg)" style="white-space: pre"
-            >{{msg.message}}</h5>
-            <h4 *ngIf="isEmergencyPriority(msg)" style="white-space: pre"
-            >{{msg.message}}</h4>
-
-        </div>
-    </div>
+    </template>
 </div>
 
 <div class="container">

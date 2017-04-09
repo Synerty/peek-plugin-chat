@@ -1,5 +1,6 @@
 from sqlalchemy import Column
 from sqlalchemy import Integer, String, Index
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime
 
@@ -20,6 +21,7 @@ class ChatUserTuple(Tuple, DeclarativeBase):
     chatId = Column(Integer,
                     ForeignKey(ChatTuple.id, ondelete="CASCADE"),
                     nullable=False)
+    chat = relationship(ChatTuple)
 
     #: The userId of a user in the chat
     userId = Column(String(2000), nullable=False)
@@ -27,7 +29,8 @@ class ChatUserTuple(Tuple, DeclarativeBase):
 
     #: Last Read Date
     lastReadDate = Column(DateTime, nullable=False)
-    hasUnreads = Column(Boolean, nullable=False)
+    # If ChatUserTuple.lastReadDate < ChatTuple.lastActivity then we have unread
+    # messages.
 
     # #:  User Name, to be populated before sending to the UI
     # userName = TupleField(defaultValue="Unknown")

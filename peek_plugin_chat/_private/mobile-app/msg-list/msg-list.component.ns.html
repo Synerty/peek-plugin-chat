@@ -6,7 +6,7 @@
         <Label class="h3" col="1" text="Int"></Label>
     </GridLayout>
 
-    <ListView [items]="messages">
+    <ListView [items]="messages()">
         <template let-item="item" let-i="index" let-odd="odd" let-even="even">
             <StackLayout [class.odd]="odd" [class.even]="even">
                 <GridLayout columns="4*, 1*" rows="auto" width="*">
