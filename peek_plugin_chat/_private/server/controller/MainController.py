@@ -1,8 +1,10 @@
 import logging
 from datetime import datetime, timedelta
+from typing import List
 
 from twisted.internet.task import LoopingCall
 
+from peek_plugin_chat._private.server.ChatApi import ChatApi
 from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
 from peek_plugin_chat._private.storage.ChatUserTuple import ChatUserTuple
 from peek_plugin_chat._private.storage.MessageReadPayloadTuple import \
@@ -12,6 +14,7 @@ from peek_plugin_chat._private.tuples.ChatUserReadActionTuple import \
     ChatUserReadActionTuple
 from peek_plugin_chat._private.tuples.CreateChatActionTuple import CreateChatActionTuple
 from peek_plugin_chat._private.tuples.SendMessageActionTuple import SendMessageActionTuple
+from peek_plugin_chat.server.ChatApiABC import NewMessage
 from peek_plugin_user.server.UserDbServerApiABC import UserDbServerApiABC
 from vortex.DeferUtil import vortexLogFailure, deferToThreadWrapWithLogger
 from vortex.TupleAction import TupleActionABC
@@ -28,9 +31,12 @@ class MainController(TupleActionProcessorDelegateABC):
     PROCESS_PERIOD = 600.0  # 10 minutes
 
     def __init__(self, dbSessionCreator,
+                 ourApi: ChatApi,
                  userPluginApi: UserDbServerApiABC,
                  taskController: TaskController,
                  tupleObservable: TupleDataObservableHandler):
+
+        self._ourApi = ourApi
         self._ormSessionCreator = dbSessionCreator
         self._userPluginApi = userPluginApi
         self._taskController = taskController
@@ -102,48 +108,48 @@ class MainController(TupleActionProcessorDelegateABC):
         session = self._ormSessionCreator()
         allUserIds = action.userIds + [action.fromUserId]
 
-        usersKey = ','.join(sorted(allUserIds))
-
         try:
-            # Check if there is an existing chat
-            chatTuple = (session
-                         .query(ChatTuple)
-                         .filter(ChatTuple.usersKey == usersKey)
-                         .all())
-
-            # Convert from the array
-            chatTuple = chatTuple[0] if chatTuple else None
-
-            if chatTuple:  # There is an existing one.
-                # Bump the chat to the top.
-                chatTuple.lastActivity = datetime.utcnow()
-
-            else:
-                # Create the new chat tuple
-                chatTuple = ChatTuple()
-                chatTuple.lastActivity = datetime.utcnow()
-                chatTuple.usersKey = usersKey
-                session.add(chatTuple)
-
-                for userId in allUserIds:
-                    chatUserTuple = ChatUserTuple()
-                    chatUserTuple.userId = userId
-                    chatUserTuple.lastReadDate = datetime.utcnow()
-                    chatUserTuple.isUserExternal = False
-                    chatUserTuple.userName = userId
-
-                    chatTuple.users.append(chatUserTuple)
-                    session.add(chatUserTuple)
-
-            session.commit()
-
-            # chatId = chatTuple.id
+            self._getOrCreateChatBlocking(allUserIds, session)
 
         finally:
             session.close()
 
         for userId in allUserIds:
             self._notifyOfChatListUpdate(userId)
+
+    def _getOrCreateChatBlocking(self, allUserIds: List[str], session) -> ChatTuple:
+        usersKey = ','.join(sorted(allUserIds))
+
+        # Check if there is an existing chat
+        chatTuple = (session
+                     .query(ChatTuple)
+                     .filter(ChatTuple.usersKey == usersKey)
+                     .all())
+        # Convert from the array
+        chatTuple = chatTuple[0] if chatTuple else None
+        if chatTuple:  # There is an existing one.
+            # Bump the chat to the top.
+            chatTuple.lastActivity = datetime.utcnow()
+
+        else:
+            # Create the new chat tuple
+            chatTuple = ChatTuple()
+            chatTuple.lastActivity = datetime.utcnow()
+            chatTuple.usersKey = usersKey
+            session.add(chatTuple)
+
+            for userId in allUserIds:
+                chatUserTuple = ChatUserTuple()
+                chatUserTuple.userId = userId
+                chatUserTuple.lastReadDate = datetime.utcnow()
+                chatUserTuple.isUserExternal = False
+                chatUserTuple.userName = userId
+
+                chatTuple.users.append(chatUserTuple)
+                session.add(chatUserTuple)
+        session.commit()
+
+        return chatTuple
 
     @deferToThreadWrapWithLogger(logger)
     def _processSendMessageAction(self, action: SendMessageActionTuple):
@@ -165,9 +171,9 @@ class MainController(TupleActionProcessorDelegateABC):
             chatId = chatTuple.id
 
             # Get the chat user for this user, sending a message implies they
-            # have read upto date.
+            # have read up to date.
             chatUserTuple = list(filter(lambda cu: cu.userId == action.fromUserId,
-                                   chatTuple.users))[0]
+                                        chatTuple.users))[0]
 
             # Create the new chat tuple
             messageTuple = MessageTuple()
@@ -184,6 +190,9 @@ class MainController(TupleActionProcessorDelegateABC):
 
             # Commit the changes.
             session.commit()
+
+            # Tell the API that we've received a message, let it notify who it needs
+            self._ourApi.notifyOfReceivedMessage(chatTuple, messageTuple)
 
             # Send alerts to the other users.
             alertUserIds = list(filter(lambda s: s != action.fromUserId, userIds))
@@ -242,6 +251,66 @@ class MainController(TupleActionProcessorDelegateABC):
 
         finally:
             session.close()
+
+    @deferToThreadWrapWithLogger(logger)
+    def sendMessageFromExternalUser(self, newMessage: NewMessage):
+        """ Send Message From External User
+        
+        This method handles the messages sent via the API
+        
+        :param newMessage: A new message to send, in the APIs simple format.
+        :return: None
+        
+        """
+
+        session = self._ormSessionCreator()
+        try:
+            # Create an array of all users in the chat
+            allUserIds = [nmu.userId for nmu in newMessage.toUsers]
+            allUserIds += [newMessage.fromExtUserId]
+
+            # Get or create the chat tuple
+            chatTuple = self._getOrCreateChatBlocking(allUserIds, session)
+            chatId = chatTuple.id
+
+            # Ensure that the external user is set as an external user
+            extChatUser = list(filter(lambda cu: cu.userId == newMessage.fromExtUserId,
+                                      chatTuple.users))[0]
+            extChatUser.isUserExternal = True
+
+            # Create the new chat tuple
+            messageTuple = MessageTuple()
+            messageTuple.chatId = chatTuple.id
+            messageTuple.fromUserId = newMessage.fromExtUserId
+            messageTuple.message = newMessage.message
+            messageTuple.priority = newMessage.priority
+            messageTuple.dateTime = datetime.utcnow()
+            session.add(messageTuple)
+
+            # Create a map of userIds to IDs for the user read payloads
+            chatUserByUserId = {cu: cu.id for cu in chatTuple.users}
+
+            # Create the read payload tuples
+            for toUser in newMessage.toUsers:
+                if not toUser.onReadPayload:
+                    continue
+
+                readPayload = MessageReadPayloadTuple()
+                readPayload.message = messageTuple
+                readPayload.chatUser = chatUserByUserId[toUser.userId]
+                readPayload.onReadPayload = toUser.onReadPayload
+                session.add(readPayload)
+
+            session.commit()
+
+
+        finally:
+            session.close()
+
+        for userId in allUserIds:
+            self._notifyOfChatListUpdate(userId)
+
+        self._notifyOfChatUpdate(chatId)
 
     # -------------------------------------------------------
     # Delete Old Messages

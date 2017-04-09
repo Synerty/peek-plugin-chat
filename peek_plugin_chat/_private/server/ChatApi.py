@@ -3,7 +3,9 @@ import logging
 from rx.subjects import Subject
 
 from peek_plugin_chat._private.server.controller.MainController import MainController
-from peek_plugin_chat.server.ChatApiABC import ChatApiABC, NewMessage
+from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
+from peek_plugin_chat._private.storage.MessageTuple import MessageTuple
+from peek_plugin_chat.server.ChatApiABC import ChatApiABC, NewMessage, ReceivedMessage
 
 logger = logging.getLogger(__name__)
 
@@ -13,56 +15,44 @@ class ChatApi(ChatApiABC):
         self._ormSessionCreator = ormSessionCreator
         self._mainController = None
 
+        self._observablesByUserId = {}
+
     def setMainController(self, mainController: MainController):
         self._mainController = mainController
 
     def shutdown(self):
-        pass
+        self._mainController = None
+        for subject in self._observablesByUserId.values():
+            subject.dispose()
+
+    def notifyOfReceivedMessage(self, chat:ChatTuple, message:MessageTuple):
+        receivedMessage = ReceivedMessage(
+            fromUserId=message.fromUserId,
+            allUserIds=[cu.userId for cu in chat.users],
+            message=message.message,
+            priority=message.priority
+        )
+
+        for user in chat.users:
+            # checking if it's external only isn't really necessary
+            # other APIs could observe any users message.
+            if not user.isUserExternal:
+                continue
+
+            # We don't notify the sender
+            if user.userId == message.fromUserId:
+                continue
+
+            # And if no ones watching it, there is nothing to do.
+            if user.userId not in self._observablesByUserId:
+                continue
+
+            self._observablesByUserId[user.userId].on_next(receivedMessage)
 
     def sendMessage(self, newMessage: NewMessage) -> None:
-        '''
-        # Create the database task from the parameter
-        dbTask = Task()
-        for name in dbTask.tupleFieldNames():
-            if getattr(task, name, None) and name is not "actions":
-                setattr(dbTask, name, getattr(task, name))
-
-        # Set the time of the message
-        dbTask.dateTime = datetime.utcnow()
-
-
-        session = self._ormSessionCreator()
-        try:
-            try:
-                oldTask = (
-                    session
-                        .query(Task)
-                        .filter(Task.uniqueId == task.uniqueId)
-                        .one()
-                )
-
-                if task.overwriteExisting:
-                    session.delete(oldTask)
-                    session.commit()
-
-                else:
-                    raise Exception("Activity with uniqueId %s already exists"
-                                    % task.uniqueId)
-
-            except NoResultFound:
-                pass
-
-            session.add(dbTask)
-            for dbAction in dbTask.actions:
-                session.add(dbAction)
-            session.commit()
-            taskId, userId = dbTask.id, dbTask.userId
-
-        finally:
-            session.close()
-
-        self._taskProc.taskAdded(taskId, userId)
-        '''
+        return self._mainController.sendMessageFromExternalUser(newMessage)
 
     def receiveMessages(self, toExtUserId: str) -> Subject:
-        pass
+        if toExtUserId not in self._observablesByUserId:
+            self._observablesByUserId[toExtUserId] = Subject()
+        return self._observablesByUserId[toExtUserId]

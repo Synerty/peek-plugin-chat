@@ -57,6 +57,11 @@ class ServerEntryHook(PluginServerEntryHookABC, PluginServerStorageEntryHookABC)
         -   Create payload, observable and tuple action handlers.
 
         """
+
+        # Create the API
+        self._api = ChatApi(self.dbSessionCreator)
+        self._loadedObjects.append(self._api)  # For auto shutdown
+
         userPluginApi = self.platform.getOtherPluginApi("peek_plugin_user")
         assert isinstance(userPluginApi, UserDbServerApiABC), (
             "Expected UserDbServerApiABC")
@@ -76,19 +81,17 @@ class ServerEntryHook(PluginServerEntryHookABC, PluginServerStorageEntryHookABC)
         self._loadedObjects.append(taskController)
 
         mainController = MainController(
+            ourApi=self._api,
             dbSessionCreator=self.dbSessionCreator,
             tupleObservable=tupleObservable,
             userPluginApi=userPluginApi,
             taskController=taskController).start()
         self._loadedObjects.append(mainController)
 
+        self._api.setMainController(mainController)
+
         # Tuple Action Processor, requires main controller
         self._loadedObjects.append(makeTupleActionProcessorHandler(mainController))
-
-        # Create the API
-        self._api = ChatApi(self.dbSessionCreator)
-        self._loadedObjects.append(self._api)  # For auto shutdown
-        self._api.setMainController(mainController)
 
         logger.debug("Started")
 

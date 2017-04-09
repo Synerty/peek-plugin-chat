@@ -14,7 +14,8 @@
         <hr *ngIf="isFirstUnreadMesage(i)"/>
 
         <!-- From and Date -->
-        <div class="col-xs-12" [class.text-right]="!isMessageFromThisUser(msg)">
+        <div class="col-xs-12 text-muted"
+             [class.text-right]="!isMessageFromThisUser(msg)">
             <small *ngIf="!isMessageFromThisUser(msg)">
                 From {{userDisplayName(msg)}} ({{msg.fromUserId}}), {{timePast(msg)}}
                 ago

@@ -69,7 +69,7 @@ class NewMessage:
         self.fromExtUserName = self._required(fromExtUserName, "fromExtUserName")
 
         # To User
-        self.toUserId = self._required(toUsers, "toUsers")
+        self.toUsers = self._required(toUsers, "toUsers")
 
         # Message
         self.message = self._required(message, "message")
@@ -94,24 +94,20 @@ class ReceivedMessage:
     PRIORITY_NORMAL = NewMessage.PRIORITY_NORMAL
 
     def __init__(self,
-                 toExtUserId: str,
                  fromUserId: str,
+                 allUserIds:List[str],
                  message: str,
-                 priority: int,
-                 onReadPayload: bytes
+                 priority: int
                  ):
         """
-        :param toExtUserId: The external user id that the message is sent to.
-
         :param fromUserId: The peek userId sending the message to the 
             external system.
+
+        :param allUserIds: All the userIds in this chat.
 
         :param message: The message sent by the peek user.
 
         :param priority: The priority of this message sent.
-
-        :param onReadPayload: The integrating plugin should deliver this payload locally
-            on the server service once the message has been delivered/read externally.
 
         """
         # From User
@@ -120,12 +116,12 @@ class ReceivedMessage:
         # To User
         self.fromUserId = fromUserId
 
+        # To User
+        self.allUserIds = allUserIds
+
         # Message
         self.message = message
         self.priority = priority
-
-        # On Read Payload
-        self.onReadPayload = onReadPayload
 
     def _required(self, val, desc):
         if not val:

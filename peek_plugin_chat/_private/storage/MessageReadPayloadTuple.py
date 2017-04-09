@@ -1,5 +1,6 @@
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy import Integer, Index
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import LargeBinary
 
 from vortex.Tuple import Tuple, addTupleType
@@ -21,11 +22,13 @@ class MessageReadPayloadTuple(Tuple, DeclarativeBase):
     messageId = Column(Integer,
                        ForeignKey(MessageTuple.id, ondelete="CASCADE"),
                        nullable=False)
+    message = relationship(MessageTuple)
 
     #: Foreign key to a ChatUser
     chatUserId = Column(Integer,
                         ForeignKey(ChatUserTuple.id, ondelete="CASCADE"),
                         nullable=False)
+    chatUser = relationship(ChatUserTuple)
 
     onReadPayload = Column(LargeBinary, nullable=False)
 
