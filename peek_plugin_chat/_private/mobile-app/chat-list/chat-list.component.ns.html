@@ -1,26 +1,42 @@
 <StackLayout class="p-20">
-    <Button text="Back to Main" (tap)="mainClicked()"></Button>
 
-    <GridLayout columns="4*, 1*" rows="auto" width="*">
-        <Label class="h3" col="0" text="String"></Label>
-        <Label class="h3" col="1" text="Int"></Label>
-    </GridLayout>
+    <!--NEW CHAT DIALOG -->
+    <pl-chat-new-chat
+            *ngIf="isNewChatDialogShown()"
+            (create)="dialogConfirmed($event)"
+            (cancel)="dialogCanceled()"
+            [data]="newChatDialogData">
 
+    </pl-chat-new-chat>
+
+    <!-- top nav buttons -->
+    <WrapLayout *ngIf="!isNewChatDialogShown()">
+        <Button text="New Chat" (tap)="newChatClicked()"></Button>
+    </WrapLayout>
+
+
+    <!-- chat list -->
     <ListView [items]="chats">
-        <template let-item="item" let-i="index" let-odd="odd" let-even="even">
-            <StackLayout [class.odd]="odd" [class.even]="even">
-                <GridLayout columns="4*, 1*" rows="auto" width="*">
-                    <!-- String -->
-                    <Label class="h3 peek-field-data-text" row="0" col="0"
-                           textWrap="true"
-                           [text]="item.string1"></Label>
+        <StackLayout *ngFor="let i = index; let chat of chats"
+                     [class.odd]="odd" [class.even]="even"
+                     (tap)="chatClicked(chat)">
+            <WrapLayout>
 
-                    <!-- Int -->
-                    <Label class="h3 peek-field-data-text" row="0" col="1"
-                           [text]="item.int1"></Label>
+                <!-- Unread indicator -->
+                <Label *ngIf="isChatRead(chat)" class="fa h2"
+                       [text]="'fa-fw' | fonticon"></Label>
 
-                </GridLayout>
-            </StackLayout>
-        </template>
+                <Label *ngIf="!isChatRead(chat)" class="fa h2"
+                       [text]="'fa-comment-o' | fonticon"></Label>
+
+                <!-- Users -->
+                <WrapLayout *ngFor="let user of otherChatUsers(chat)">
+                    <Label class="h3 peek-field-data-text bg-primary" textWrap="true"
+                           text="{{userDisplayName(user)}} ({{user.userId}})"></Label>
+                    <Label text=" "></Label>
+                </WrapLayout>
+
+            </WrapLayout>
+        </StackLayout>
     </ListView>
 </StackLayout>

@@ -27,10 +27,13 @@
         <div class="row" (click)="chatClicked(chat)" class="well">
             <div class="col-sm-12">
 
+                <!-- Unread indicator -->
                 <fa name="fw" *ngIf="isChatRead(chat)"></fa>
                 <fa name="comment-o" *ngIf="!isChatRead(chat)"></fa>
+
+                <!-- Other Users -->
                 <span *ngFor="let user of otherChatUsers(chat)">
-                    <span class="label label-success">
+                    <span class="label label-primary">
                         {{userDisplayName(user)}} ({{user.userId}})
                     </span>&nbsp;
                 </span>

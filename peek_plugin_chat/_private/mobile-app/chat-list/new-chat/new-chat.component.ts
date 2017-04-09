@@ -60,24 +60,33 @@ export class NewChatComponent extends ComponentLifecycleEventEmitter {
     cancelled = true;
 
     users: UserListItemTuple[] = [];
-    selectedUserId: string | null;
+    usersStrList :string[];
+    selectedUserIndex: number | null;
 
 
     constructor(private userService: UserService) {
         super();
 
         this.users.add(userService.users);
-        this.filterOutUser(userService.userDetails.userId);
+        this.users = this.users.filter((i) => i.userId != userService.userDetails.userId);
+        this.rebuildList();
+
     }
 
-    private filterOutUser(userId: string) {
-        this.users = this.users.filter((i) => i.userId != userId);
+    private filterOutUser(userIndex: number) {
+    }
+
+    private rebuildList() {
+        this.usersStrList = [];
+        for (let user of this.users) {
+            this.usersStrList.push(`${user.displayName} (${user.userId})`)
+        }
     }
 
 
     // ---- Display methods
     newButtonEnabled(): boolean {
-        return this.selectedUserId != null;
+        return this.selectedUserIndex != null;
     }
 
     createButtonEnabled(): boolean {
@@ -88,10 +97,14 @@ export class NewChatComponent extends ComponentLifecycleEventEmitter {
     // ---- User Input methods
 
     addUserClicked() {
-        let user = this.users.filter(u => u.userId === this.selectedUserId)[0];
-        this.data.users.push(user);
-        this.filterOutUser(this.selectedUserId);
-        this.selectedUserId = null;
+        let selectedUser = this.users[this.selectedUserIndex];
+
+        this.data.users.push(selectedUser);
+
+        this.users = this.users.filter((i) => i.userId != selectedUser.userId);
+        this.rebuildList();
+
+        this.selectedUserIndex = null;
     }
 
     /** Confirm Clicked

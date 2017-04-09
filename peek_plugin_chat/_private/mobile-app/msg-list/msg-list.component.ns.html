@@ -1,31 +1,54 @@
-<StackLayout class="p-20">
-    <Button text="Back to Main" (tap)="mainClicked()"></Button>
+<GridLayout class="p-20" columns="*" rows="auto, auto, *, auto">
+    <Button row="0" class="fa h2" [text]="'fa-angle-left' | fonticon"
+            (tap)="navToChatsClicked()"></Button>
 
-    <GridLayout columns="4*, 1*" rows="auto" width="*">
-        <Label class="h3" col="0" text="String"></Label>
-        <Label class="h3" col="1" text="Int"></Label>
-    </GridLayout>
+    <!-- No Messages -->
+    <Label row="1" *ngIf="!haveMessages()" text="No messages"></Label>
 
-    <ListView [items]="messages()">
-        <template let-item="item" let-i="index" let-odd="odd" let-even="even">
+    <ListView row="2" [items]="messages()" #messageListRef>
+        <template let-i="index" let-msg="item" let-odd="odd" let-even="even">
             <StackLayout [class.odd]="odd" [class.even]="even">
-                <GridLayout columns="4*, 1*" rows="auto" width="*">
-                    <!-- String -->
-                    <Label class="h3 peek-field-data-text" row="0" col="0"
-                           textWrap="true"
-                           [text]="item.string1"></Label>
+                <!-- Unread marker -->
+                <Label *ngIf="isFirstUnreadMesage(i)"
+                       text="---------------------------"></Label>
 
-                    <!-- Int -->
-                    <Label class="h3 peek-field-data-text" row="0" col="1"
-                           [text]="item.int1"></Label>
+                <!-- From and Date -->
+                <Label class="h6"
+                       [class.text-right]="!isMessageFromThisUser(msg)"
+                       *ngIf="!isMessageFromThisUser(msg)"
+                       text="From {{userDisplayName(msg)}} ({{msg.fromUserId}}), {{timePast(msg)}} ago"></Label>
+
+                <Label class="h6"
+                       *ngIf="isMessageFromThisUser(msg)"
+                       [class.text-right]="!isMessageFromThisUser(msg)"
+                       text="{{timePast(msg)}} ago"></Label>
+
+                <!-- Message -->
+                <GridLayout columns="*, *, *" rows="auto" width="*">
+                    <Label class="h3 peek-field-data-text" row="0" colspan="2"
+                           [class.text-right]="!isMessageFromThisUser(msg)"
+                           [col]="isMessageFromThisUser(msg) ? 0 : 1"
+                           textWrap="true"
+                           [text]="msg.message"
+                           [class.h4]="isNormalPriority(msg)"
+                           [class.bg-primary]="isNormalPriority(msg)"
+                           [class.h3]="isEmergencyPriority(msg)"
+                           [class.bg-danger]="isEmergencyPriority(msg)"></Label>
 
                 </GridLayout>
+
             </StackLayout>
         </template>
     </ListView>
 
-    <GridLayout columns="*, auto" rows="auto" width="*">
-        <TextView></TextView>
-                <Button text="Send" (tap)="sendMsgClicked()"></Button>
+    <GridLayout row="3" columns="*, auto, auto" rows="auto" width="*" height="auto">
+        <TextView row="0" col="0" [(ngModel)]="newMessageText" returnKeyType="send"
+                  textWrap="true" (returnPress)="sendMsgClicked()"></TextView>
+        <Button row="0" col="1" text="Send"
+                [isEnabled]="sendEnabled()"
+                (tap)="sendMsgClicked()"></Button>
+        <Button row="0" col="2" text="SOS"
+                (tap)="sendSosClicked()"></Button>
+
     </GridLayout>
-</StackLayout>
+</GridLayout>

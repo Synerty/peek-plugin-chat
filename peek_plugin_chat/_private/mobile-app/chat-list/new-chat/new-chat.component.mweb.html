@@ -11,9 +11,9 @@
     <div class="form-group">
         <label for="userIdField">Add User:</label>
         <select id="userIdField" class="form-control" name="userId"
-                [(ngModel)]="selectedUserId">
-            <option [value]="user.userId" *ngFor="let user of users">
-                {{user.displayName}} ({{user.userId}})
+                [(ngModel)]="selectedUserIndex">
+            <option [value]="i" *ngFor="let i = index; let item of usersStrList">
+                {{item}}
             </option>
         </select>
     </div>
