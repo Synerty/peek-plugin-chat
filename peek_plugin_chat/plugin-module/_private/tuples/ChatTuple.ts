@@ -12,10 +12,12 @@ export class ChatTuple extends Tuple {
     id: number;
 
     // Message details
-    hasUnreads: boolean;
     lastActivity: Date;
 
+    usersKey: string;
+
     messages: MessageTuple[] = [];
+
     users: ChatUserTuple[] = [];
 
     constructor() {

@@ -20,6 +20,8 @@ import {
     TupleSelector
 } from "@synerty/vortexjs";
 
+import * as moment from "moment";
+
 @Component({
     selector: 'plugin-chat-msg-list',
     templateUrl: 'msg-list.component.mweb.html',
@@ -69,6 +71,12 @@ export class MsgListComponent extends ComponentLifecycleEventEmitter implements 
     }
 
     // ---- Display methods
+    messages(): MessageTuple[] {
+        if (this.chat != null)
+            return this.chat.messages;
+        return [];
+    }
+
     haveMessages(): boolean {
         return this.chat != null && this.chat.messages.length !== 0;
     }
@@ -77,17 +85,49 @@ export class MsgListComponent extends ComponentLifecycleEventEmitter implements 
         return this.newMessageText.length != 0;
     }
 
-    // ---- User Input methods
-    mainClicked() {
-        this.router.navigate([chatBaseUrl]);
+    isMessageFromThisUser(msg: MessageTuple): boolean {
+        return msg.fromUserId == this.userService.userDetails.userId;
     }
 
-    sendMsgClicked(item) {
+    userDisplayName(msg: MessageTuple): string {
+        return this.userService.userDisplayName(msg.fromUserId);
+    }
+
+    isNormalPriority(msg: MessageTuple): boolean {
+        return msg.priority === MessageTuple.PRIORITY_NORMAL;
+    }
+
+    isEmergencyPriority(msg: MessageTuple): boolean {
+        return msg.priority === MessageTuple.PRIORITY_EMERGENCY;
+    }
+
+    dateTime(msg: MessageTuple) {
+        return moment(msg.dateTime).format('HH:MM DD-MMM');
+    }
+
+    timePast(msg: MessageTuple) {
+        return moment.duration(new Date().getTime() - msg.dateTime.getTime()).humanize();
+    }
+
+    // ---- User Input methods
+    navToChatsClicked() {
+        this.router.navigate([chatBaseUrl, 'chats']);
+    }
+
+    sendMsgClicked() {
+        this.sendMessage(MessageTuple.PRIORITY_NORMAL);
+    }
+
+    sendSosClicked() {
+        this.sendMessage(MessageTuple.PRIORITY_EMERGENCY);
+    }
+
+    private sendMessage(priority) {
         let action = new SendMessageActionTuple();
         action.chatId = this.chat.id;
         action.fromUserId = this.userService.userDetails.userId;
         action.message = this.newMessageText;
-        action.priority = MessageTuple.PRIORITY_NORMAL;
+        action.priority = priority;
 
         this.actionService.pushAction(action)
             .then(() => {

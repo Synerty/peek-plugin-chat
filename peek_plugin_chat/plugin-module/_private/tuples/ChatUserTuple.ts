@@ -14,8 +14,12 @@ export class ChatUserTuple extends Tuple {
     userId: string;
     isUserExternal: boolean;
 
-    // Message state details
-    userName: string;
+    // User to / from
+    lastReadDate: Date;
+    hasUnreads: boolean;
+
+    // // Message state details
+    // userName: string;
 
     constructor() {
         super(ChatUserTuple.tupleName)

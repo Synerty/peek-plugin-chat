@@ -1,7 +1,7 @@
 from sqlalchemy import Column
 from sqlalchemy import Integer, String, Index
 from sqlalchemy.sql.schema import ForeignKey
-from sqlalchemy.sql.sqltypes import Boolean
+from sqlalchemy.sql.sqltypes import Boolean, DateTime
 
 from peek_plugin_chat._private.PluginNames import chatTuplePrefix
 from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
@@ -25,8 +25,12 @@ class ChatUserTuple(Tuple, DeclarativeBase):
     userId = Column(String(2000), nullable=False)
     isUserExternal = Column(Boolean, nullable=False)
 
-    #:  User Name, to be populated before sending to the UI
-    userName = TupleField(defaultValue="Unknown")
+    #: Last Read Date
+    lastReadDate = Column(DateTime, nullable=False)
+    hasUnreads = Column(Boolean, nullable=False)
+
+    # #:  User Name, to be populated before sending to the UI
+    # userName = TupleField(defaultValue="Unknown")
 
     __table_args__ = (
         Index("idx_ChatUser_userId", userId, unique=False),

@@ -19,12 +19,12 @@ export const pluginRoutes: Routes = [
     },
     {
         path: '',
-        component: ChatComponent,
+        component: ChatListComponent,
         canActivate: [LoggedInGuard]
     },
     {
         path: '**',
-        component: ChatComponent,
+        component: ChatListComponent,
         canActivate: [LoggedInGuard]
     }
 

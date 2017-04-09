@@ -1,10 +1,34 @@
 from abc import ABCMeta, abstractmethod
+from typing import Optional, List
 
 from rx.subjects import Subject
-from typing import Optional
 
 
-class SendMessage:
+class NewMessageUser:
+    """ New Message User
+    
+    This class represents a user that the message will be sent to.
+    
+    """
+
+    def __init__(self, toUserId: str, onReadPayload: Optional[bytes] = None):
+        """ 
+        :param toUserId: The peek userId that matches a user in peek_plugin_user plugin.
+
+        :param onReadPayload: (Optional) The payload that will be delivered locally
+            on Peek Server when the user has read the message.
+
+        """
+        # To User
+        self.toUserId = toUserId
+        if not toUserId:
+            raise Exception("toUserId is not optional")
+
+        # On Read Payload
+        self.onReadPayload = onReadPayload
+
+
+class NewMessage:
     """ New Message
 
     This class represents a new message that another plugin can send to a user.
@@ -21,10 +45,9 @@ class SendMessage:
     def __init__(self,
                  fromExtUserId: str,
                  fromExtUserName: str,
-                 toUserId: str,
+                 toUsers: List[NewMessageUser],
                  message: str,
                  priority: int = PRIORITY_NORMAL,
-                 onReadPayload: Optional[bytes] = None
                  ):
         """ 
         :param fromExtUserId: The external user id of the user sending the message.
@@ -33,30 +56,24 @@ class SendMessage:
         :param fromExtUserName: The name of the external user (or system) sending the
             message.
     
-        :param toUserId: The peek userId that matches a user in peek_plugin_user plugin.
+        :param toUsers: A list of users to send the message to.
         
         :param message: The message to send to the user.
         
         :param priority: The priority of this message, some messages may be emergency 
             messages.
         
-        :param onReadPayload: (Optional) The payload that will be delivered locally
-            on Peek Server when the user has read the message.
-            
         """
         # From User
         self.fromExtUserId = self._required(fromExtUserId, "fromExtUserId")
         self.fromExtUserName = self._required(fromExtUserName, "fromExtUserName")
 
         # To User
-        self.toUserId = self._required(toUserId, "toUserId")
+        self.toUserId = self._required(toUsers, "toUsers")
 
         # Message
         self.message = self._required(message, "message")
         self.priority = self._required(priority, "priority")
-
-        # On Read Payload
-        self.onReadPayload = onReadPayload
 
     def _required(self, val, desc):
         if not val:
@@ -73,8 +90,8 @@ class ReceivedMessage:
     """
 
     # Message priorities
-    PRIORITY_EMERGENCY = SendMessage.PRIORITY_EMERGENCY
-    PRIORITY_NORMAL = SendMessage.PRIORITY_NORMAL
+    PRIORITY_EMERGENCY = NewMessage.PRIORITY_EMERGENCY
+    PRIORITY_NORMAL = NewMessage.PRIORITY_NORMAL
 
     def __init__(self,
                  toExtUserId: str,
@@ -119,7 +136,7 @@ class ReceivedMessage:
 
 class ChatApiABC(metaclass=ABCMeta):
     @abstractmethod
-    def sendMessage(self, newMessage: SendMessage) -> None:
+    def sendMessage(self, newMessage: NewMessage) -> None:
         """ Send a Message
 
         Send a new chat message to a user.

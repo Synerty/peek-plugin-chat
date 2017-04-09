@@ -11,3 +11,6 @@ def loadPrivateTuples():
 
     from . import CreateChatActionTuple
     CreateChatActionTuple.__unused = False
+
+    from . import ChatReadActionTuple
+    ChatReadActionTuple.__unused = False

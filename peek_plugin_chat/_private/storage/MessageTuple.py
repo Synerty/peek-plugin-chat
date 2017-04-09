@@ -6,6 +6,7 @@ from peek_plugin_base.storage.TypeDecorators import PeekVarBinary
 from peek_plugin_chat._private.PluginNames import chatTuplePrefix
 from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
 from peek_plugin_chat._private.storage.DeclarativeBase import DeclarativeBase
+from peek_plugin_chat.server.ChatApiABC import NewMessage
 from vortex.Tuple import Tuple, addTupleType
 
 
@@ -23,19 +24,16 @@ class MessageTuple(Tuple, DeclarativeBase):
 
     # Message details
     message = Column(String(2000), nullable=False)
+
     priority = Column(Integer, nullable=False)
+    PRIORITY_EMERGENCY = NewMessage.PRIORITY_EMERGENCY
+    PRIORITY_NORMAL = NewMessage.PRIORITY_NORMAL
 
     # User to / from
     fromUserId = Column(String(40), nullable=False)
 
     # Message state details
     dateTime = Column(DateTime, nullable=False)
-
-    #:  These indicate the message state
-    state = Column(Integer, nullable=False)
-    STATE_NEW = 1
-    STATE_DELIVERED = 2
-    STATE_READ = 3
 
     onReadPayload = Column(LargeBinary)
 

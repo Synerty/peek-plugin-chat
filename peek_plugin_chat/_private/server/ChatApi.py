@@ -3,7 +3,7 @@ import logging
 from rx.subjects import Subject
 
 from peek_plugin_chat._private.server.controller.MainController import MainController
-from peek_plugin_chat.server.ChatApiABC import ChatApiABC, SendMessage
+from peek_plugin_chat.server.ChatApiABC import ChatApiABC, NewMessage
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ class ChatApi(ChatApiABC):
     def shutdown(self):
         pass
 
-    def sendMessage(self, newMessage: SendMessage) -> None:
+    def sendMessage(self, newMessage: NewMessage) -> None:
         '''
         # Create the database task from the parameter
         dbTask = Task()

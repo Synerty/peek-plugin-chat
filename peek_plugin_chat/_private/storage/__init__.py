@@ -15,11 +15,11 @@ def loadStorageTuples():
     from . import Setting
     Setting.__unused = False
 
-    from . import Setting
-    Setting.__unused = False
-
     from . import ChatTuple
     ChatTuple.__unused = False
 
     from . import ChatUserTuple
     ChatUserTuple.__unused = False
+
+    from . import MessageReadPayloadTuple
+    MessageReadPayloadTuple.__unused = False

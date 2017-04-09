@@ -11,6 +11,7 @@ from peek_plugin_chat._private.server.TupleDataObservable import \
     makeTupleDataObservableHandler
 from peek_plugin_chat._private.server.admin_backend import makeAdminBackendHandlers
 from peek_plugin_chat._private.server.controller.MainController import MainController
+from peek_plugin_chat._private.server.controller.TaskController import TaskController
 from peek_plugin_chat._private.storage import DeclarativeBase, loadStorageTuples
 from peek_plugin_chat._private.tuples import loadPrivateTuples
 from peek_plugin_chat.tuples import loadPublicTuples
@@ -66,19 +67,25 @@ class ServerEntryHook(PluginServerEntryHookABC, PluginServerStorageEntryHookABC)
 
         self._loadedObjects.extend(makeAdminBackendHandlers(self.dbSessionCreator))
 
+        # Tuple Observer, required by main controller
         tupleObservable = makeTupleDataObservableHandler(self.dbSessionCreator)
         self._loadedObjects.append(tupleObservable)
+
+        # Controllers
+        taskController = TaskController(activeTaskPluginApi)
+        self._loadedObjects.append(taskController)
 
         mainController = MainController(
             dbSessionCreator=self.dbSessionCreator,
             tupleObservable=tupleObservable,
             userPluginApi=userPluginApi,
-            activeTaskPluginApi=activeTaskPluginApi)
-
+            taskController=taskController).start()
         self._loadedObjects.append(mainController)
+
+        # Tuple Action Processor, requires main controller
         self._loadedObjects.append(makeTupleActionProcessorHandler(mainController))
 
-
+        # Create the API
         self._api = ChatApi(self.dbSessionCreator)
         self._loadedObjects.append(self._api)  # For auto shutdown
         self._api.setMainController(mainController)

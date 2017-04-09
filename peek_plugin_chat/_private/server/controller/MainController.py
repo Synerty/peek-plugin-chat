@@ -5,10 +5,10 @@ from twisted.internet.task import LoopingCall
 
 from peek_plugin_active_task._private.storage.Activity import Activity
 from peek_plugin_active_task._private.storage.Task import Task
-from peek_plugin_active_task.server.ActiveTaskApiABC import ActiveTaskApiABC
 from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
 from peek_plugin_chat._private.storage.ChatUserTuple import ChatUserTuple
 from peek_plugin_chat._private.storage.MessageTuple import MessageTuple
+from peek_plugin_chat._private.tuples.ChatReadActionTuple import ChatReadActionTuple
 from peek_plugin_chat._private.tuples.CreateChatActionTuple import CreateChatActionTuple
 from peek_plugin_chat._private.tuples.SendMessageActionTuple import SendMessageActionTuple
 from peek_plugin_user.server.UserDbServerApiABC import UserDbServerApiABC
@@ -17,6 +17,7 @@ from vortex.TupleAction import TupleActionABC
 from vortex.TupleSelector import TupleSelector
 from vortex.handler.TupleActionProcessor import TupleActionProcessorDelegateABC
 from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
+from .TaskController import TaskController
 
 logger = logging.getLogger(__name__)
 
@@ -26,11 +27,11 @@ class MainController(TupleActionProcessorDelegateABC):
 
     def __init__(self, dbSessionCreator,
                  userPluginApi: UserDbServerApiABC,
-                 activeTaskPluginApi: ActiveTaskApiABC,
+                 taskController: TaskController,
                  tupleObservable: TupleDataObservableHandler):
         self._ormSessionCreator = dbSessionCreator
         self._userPluginApi = userPluginApi
-        self._activeTaskPluginApi = activeTaskPluginApi
+        self._taskController = taskController
         self._tupleObserver = tupleObservable
 
         self._processLoopingCall = LoopingCall(self._deleteOnDateTime)
@@ -38,6 +39,7 @@ class MainController(TupleActionProcessorDelegateABC):
     def start(self):
         d = self._processLoopingCall.start(self.PROCESS_PERIOD, now=False)
         d.addErrback(vortexLogFailure, logger)
+        return self
 
     def shutdown(self):
         self._processLoopingCall.stop()
@@ -54,7 +56,6 @@ class MainController(TupleActionProcessorDelegateABC):
         self._tupleObserver.notifyOfTupleUpdate(
             TupleSelector(ChatTuple.tupleType(), {"userId": userId})
         )
-
 
     def _notifyOfChatUpdate(self, chatId: int) -> None:
         """ Notify of Chat Update
@@ -75,6 +76,9 @@ class MainController(TupleActionProcessorDelegateABC):
 
         if isinstance(tupleAction, CreateChatActionTuple):
             return self._processCreateChatAction(tupleAction)
+
+        if isinstance(tupleAction, ChatReadActionTuple):
+            return self._processChatReadAction(tupleAction)
 
         raise Exception("Unhandled tuple action %s" % tupleAction.tupleType())
 
@@ -120,6 +124,9 @@ class MainController(TupleActionProcessorDelegateABC):
 
             session.commit()
 
+            alertUserIds = list(filter(lambda s : s != action.fromUserId, userIds))
+            self._taskController.addTask(chatTuple, messageTuple, alertUserIds)
+
 
         finally:
             session.close()
@@ -128,6 +135,7 @@ class MainController(TupleActionProcessorDelegateABC):
             self._notifyOfChatListUpdate(userId)
 
         self._notifyOfChatUpdate(chatId)
+
 
         '''
         taskId = tupleAction.data["id"]
@@ -216,6 +224,44 @@ class MainController(TupleActionProcessorDelegateABC):
 
         for userId in action.userIds:
             self._notifyOfChatListUpdate(userId)
+
+    @deferToThreadWrapWithLogger(logger)
+    def _processChatReadAction(self, action: ChatReadActionTuple):
+        """ Process Create Chat action by user
+
+        Process updates to the task from the UI.
+
+        """
+        '''
+        session = self._ormSessionCreator()
+
+        try:
+            # Create the new chat tuple
+            chatTuple = ChatTuple()
+            chatTuple.lastActivity = datetime.utcnow()
+            chatTuple.hasUnreads = False
+            session.add(chatTuple)
+
+            for userId in action.userIds + [action.fromUserId]:
+                chatUserTuple = ChatUserTuple()
+                chatUserTuple.userId = userId
+                chatUserTuple.isUserExternal = False
+                chatUserTuple.userName = userId
+
+                chatTuple.users.append(chatUserTuple)
+                session.add(chatUserTuple)
+
+            session.commit()
+
+            # chatId = chatTuple.id
+
+        finally:
+            session.close()
+
+        for userId in action.userIds:
+            self._notifyOfChatListUpdate(userId)
+        
+        '''
 
     # -------------------------------------------------------
     # Delete Old Messages

@@ -2,7 +2,12 @@ import {Component} from "@angular/core";
 import {Router} from "@angular/router";
 import {TitleService} from "@synerty/peek-mobile-util";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
-import {chatBaseUrl, ChatTuple} from "@peek/peek_plugin_chat/_private";
+import {
+    chatBaseUrl,
+    ChatTuple,
+    ChatUserTuple,
+    CreateChatActionTuple
+} from "@peek/peek_plugin_chat/_private";
 
 import {UserService} from "@peek/peek_plugin_user";
 
@@ -13,7 +18,6 @@ import {
     TupleSelector
 } from "@synerty/vortexjs";
 import {NewChatDialogData} from "./new-chat/new-chat.component";
-import {CreateChatActionTuple} from "@peek/peek_plugin_chat/_private";
 
 @Component({
     selector: 'plugin-chat-chat-list',
@@ -81,6 +85,11 @@ export class ChatListComponent extends ComponentLifecycleEventEmitter {
     }
 
     // ---- Display methods
+
+    userDisplayName(chatUser:ChatUserTuple): string {
+        return this.userService.userDisplayName(chatUser.userId);
+    }
+
     isNewChatDialogShown(): boolean {
         return this.newChatDialogData != null;
     }
