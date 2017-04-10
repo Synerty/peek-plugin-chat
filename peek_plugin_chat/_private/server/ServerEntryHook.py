@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from peek_plugin_active_task.server.ActiveTaskApiABC import ActiveTaskApiABC
 from peek_plugin_base.server.PluginServerEntryHookABC import PluginServerEntryHookABC
@@ -121,3 +122,13 @@ class ServerEntryHook(PluginServerEntryHookABC, PluginServerStorageEntryHookABC)
     @property
     def dbMetadata(self):
         return DeclarativeBase.metadata
+
+
+    @property
+    def publishedServerApi(self) -> Optional[object]:
+        """ Published Server API
+
+        :return  class that implements the API that can be used by other PLUGINs on this
+        platform.
+        """
+        return self._api

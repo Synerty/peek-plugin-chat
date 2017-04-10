@@ -100,8 +100,7 @@ class ReceivedMessage:
                  priority: int
                  ):
         """
-        :param fromUserId: The peek userId sending the message to the 
-            external system.
+        :param fromUserId: The peek userId sending the message.
 
         :param allUserIds: All the userIds in this chat.
 
@@ -111,12 +110,9 @@ class ReceivedMessage:
 
         """
         # From User
-        self.toExtUserId = toExtUserId
-
-        # To User
         self.fromUserId = fromUserId
 
-        # To User
+        # All Users
         self.allUserIds = allUserIds
 
         # Message

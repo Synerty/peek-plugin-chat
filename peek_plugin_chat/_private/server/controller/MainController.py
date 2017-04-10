@@ -165,10 +165,6 @@ class MainController(TupleActionProcessorDelegateABC):
                          .filter(ChatTuple.id == action.chatId)
                          .one())
 
-            # Get the IDs needed for the updates
-            userIds = [chatUser.userId for chatUser in chatTuple.users]
-            chatId = chatTuple.id
-
             # Get the chat user for this user, sending a message implies they
             # have read up to date.
             chatUserTuple = list(filter(lambda cu: cu.userId == action.fromUserId,
@@ -193,7 +189,14 @@ class MainController(TupleActionProcessorDelegateABC):
             # Tell the API that we've received a message, let it notify who it needs
             self._ourApi.notifyOfReceivedMessage(chatTuple, messageTuple)
 
+
+            # Get the IDs needed for the updates
+            userIds = [chatUser.userId for chatUser in chatTuple.users
+                       if not chatUser.isUserExternal]
+            chatId = chatTuple.id
+
             # Send alerts to the other users.
+            alertUserIds = list(filter(lambda s: s != action.fromUserId, userIds))
             alertUserIds = list(filter(lambda s: s != action.fromUserId, userIds))
             self._taskController.addTask(chatTuple, messageTuple, alertUserIds)
 
@@ -265,7 +268,7 @@ class MainController(TupleActionProcessorDelegateABC):
         session = self._ormSessionCreator()
         try:
             # Create an array of all users in the chat
-            allUserIds = [nmu.userId for nmu in newMessage.toUsers]
+            allUserIds = [nmu.toUserId for nmu in newMessage.toUsers]
             allUserIds += [newMessage.fromExtUserId]
 
             # Get or create the chat tuple
@@ -287,7 +290,7 @@ class MainController(TupleActionProcessorDelegateABC):
             session.add(messageTuple)
 
             # Create a map of userIds to IDs for the user read payloads
-            chatUserByUserId = {cu: cu.id for cu in chatTuple.users}
+            chatUserByUserId = {cu.userId: cu for cu in chatTuple.users}
 
             # Create the read payload tuples
             for toUser in newMessage.toUsers:
@@ -296,11 +299,15 @@ class MainController(TupleActionProcessorDelegateABC):
 
                 readPayload = MessageReadPayloadTuple()
                 readPayload.message = messageTuple
-                readPayload.chatUser = chatUserByUserId[toUser.userId]
+                readPayload.chatUser = chatUserByUserId[toUser.toUserId]
                 readPayload.onReadPayload = toUser.onReadPayload
                 session.add(readPayload)
 
             session.commit()
+
+            # Send alerts to the other users.
+            alertUserIds = list(filter(lambda s: s != newMessage.fromExtUserId, allUserIds))
+            self._taskController.addTask(chatTuple, messageTuple, alertUserIds)
 
 
         finally:
