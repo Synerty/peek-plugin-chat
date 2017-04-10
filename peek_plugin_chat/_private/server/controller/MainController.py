@@ -4,7 +4,6 @@ from typing import List
 
 from twisted.internet.task import LoopingCall
 
-from peek_plugin_chat._private.server.ChatApi import ChatApi
 from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
 from peek_plugin_chat._private.storage.ChatUserTuple import ChatUserTuple
 from peek_plugin_chat._private.storage.MessageReadPayloadTuple import \
@@ -31,7 +30,7 @@ class MainController(TupleActionProcessorDelegateABC):
     PROCESS_PERIOD = 600.0  # 10 minutes
 
     def __init__(self, dbSessionCreator,
-                 ourApi: ChatApi,
+                 ourApi, #: ChatApi,
                  userPluginApi: UserDbServerApiABC,
                  taskController: TaskController,
                  tupleObservable: TupleDataObservableHandler):
