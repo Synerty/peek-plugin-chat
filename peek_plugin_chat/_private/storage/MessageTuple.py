@@ -1,8 +1,8 @@
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy import Integer, String, Index
-from sqlalchemy.sql.sqltypes import DateTime, LargeBinary
+from sqlalchemy.sql.sqltypes import DateTime
 
-from peek_plugin_base.storage.TypeDecorators import PeekVarBinary
+from peek_plugin_base.storage.TypeDecorators import PeekLargeBinary
 from peek_plugin_chat._private.PluginNames import chatTuplePrefix
 from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
 from peek_plugin_chat._private.storage.DeclarativeBase import DeclarativeBase
@@ -35,7 +35,7 @@ class MessageTuple(Tuple, DeclarativeBase):
     # Message state details
     dateTime = Column(DateTime, nullable=False)
 
-    onReadPayload = Column(LargeBinary)
+    onReadPayload = Column(PeekLargeBinary)
 
     __table_args__ = (
         Index("idx_ChatMsgTuple_chatId", chatId, unique=False),

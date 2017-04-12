@@ -1,11 +1,10 @@
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy import Integer, Index
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql.sqltypes import LargeBinary
 
-from vortex.Tuple import Tuple, addTupleType
-
+from peek_plugin_base.storage.TypeDecorators import PeekLargeBinary
 from peek_plugin_chat._private.PluginNames import chatTuplePrefix
+from vortex.Tuple import Tuple, addTupleType
 from .ChatUserTuple import ChatUserTuple
 from .DeclarativeBase import DeclarativeBase
 from .MessageTuple import MessageTuple
@@ -31,7 +30,7 @@ class MessageReadPayloadTuple(Tuple, DeclarativeBase):
                         nullable=True)
     chatUser = relationship(ChatUserTuple)
 
-    onReadPayload = Column(LargeBinary, nullable=False)
+    onReadPayload = Column(PeekLargeBinary, nullable=False)
 
     __table_args__ = (
         Index("idx_ChatPayloads", messageId, chatUserId, unique=False),
