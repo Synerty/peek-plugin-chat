@@ -25,9 +25,10 @@ class MessageReadPayloadTuple(Tuple, DeclarativeBase):
     message = relationship(MessageTuple)
 
     #: Foreign key to a ChatUser
+    ## MSSQL forces us make this nullable and use ONDELETE=NO ACTION
     chatUserId = Column(Integer,
-                        ForeignKey(ChatUserTuple.id, ondelete="CASCADE"),
-                        nullable=False)
+                        ForeignKey(ChatUserTuple.id, ondelete="NO ACTION"),
+                        nullable=True)
     chatUser = relationship(ChatUserTuple)
 
     onReadPayload = Column(LargeBinary, nullable=False)

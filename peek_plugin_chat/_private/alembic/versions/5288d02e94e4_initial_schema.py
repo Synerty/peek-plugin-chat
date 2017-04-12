@@ -41,7 +41,6 @@ def upgrade():
     sa.Column('userId', sa.String(length=2000), nullable=False),
     sa.Column('isUserExternal', sa.Boolean(), nullable=False),
     sa.Column('lastReadDate', sa.DateTime(), nullable=False),
-    sa.Column('hasUnreads', sa.Boolean(), nullable=False),
     sa.ForeignKeyConstraint(['chatId'], ['pl_chat.ChatTuple.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     schema='pl_chat'
@@ -78,9 +77,9 @@ def upgrade():
     op.create_table('MessageReadPayloadTuple',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('messageId', sa.Integer(), nullable=False),
-    sa.Column('chatUserId', sa.Integer(), nullable=False),
+    sa.Column('chatUserId', sa.Integer(), nullable=True),
     sa.Column('onReadPayload', sa.LargeBinary(), nullable=False),
-    sa.ForeignKeyConstraint(['chatUserId'], ['pl_chat.ChatUserTuple.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['chatUserId'], ['pl_chat.ChatUserTuple.id'], ondelete='NO ACTION'),
     sa.ForeignKeyConstraint(['messageId'], ['pl_chat.MessageTuple.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     schema='pl_chat'
