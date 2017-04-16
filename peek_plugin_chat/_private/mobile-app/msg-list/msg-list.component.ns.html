@@ -6,7 +6,7 @@
     <Label row="1" *ngIf="!haveMessages()" text="No messages"></Label>
 
     <ListView row="2" [items]="messages()" #messageListRef>
-        <template let-i="index" let-msg="item" let-odd="odd" let-even="even">
+        <ng-template let-i="index" let-msg="item" let-odd="odd" let-even="even">
             <StackLayout [class.odd]="odd" [class.even]="even">
                 <!-- Unread marker -->
                 <Label *ngIf="isFirstUnreadMesage(i)"
@@ -38,7 +38,7 @@
                 </GridLayout>
 
             </StackLayout>
-        </template>
+        </ng-template>
     </ListView>
 
     <GridLayout row="3" columns="*, auto, auto" rows="auto" width="*" height="auto">
