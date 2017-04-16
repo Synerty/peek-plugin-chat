@@ -14,7 +14,7 @@ from peek_plugin_chat._private.tuples.ChatUserReadActionTuple import \
 from peek_plugin_chat._private.tuples.CreateChatActionTuple import CreateChatActionTuple
 from peek_plugin_chat._private.tuples.SendMessageActionTuple import SendMessageActionTuple
 from peek_plugin_chat.server.ChatApiABC import NewMessage
-from peek_plugin_user.server.UserDbServerApiABC import UserDbServerApiABC
+from peek_plugin_user.server.UserServerApiABC import UserServerApiABC
 from vortex.DeferUtil import vortexLogFailure, deferToThreadWrapWithLogger
 from vortex.TupleAction import TupleActionABC
 from vortex.TupleSelector import TupleSelector
@@ -30,8 +30,8 @@ class MainController(TupleActionProcessorDelegateABC):
     PROCESS_PERIOD = 600.0  # 10 minutes
 
     def __init__(self, dbSessionCreator,
-                 ourApi, #: ChatApi,
-                 userPluginApi: UserDbServerApiABC,
+                 ourApi,  #: ChatApi,
+                 userPluginApi: UserServerApiABC,
                  taskController: TaskController,
                  tupleObservable: TupleDataObservableHandler):
 
@@ -309,6 +309,34 @@ class MainController(TupleActionProcessorDelegateABC):
             alertUserIds = list(filter(lambda s: s != newMessage.fromExtUserId, allUserIds))
             self._taskController.addTask(chatTuple, messageTuple, alertUserIds)
 
+
+        finally:
+            session.close()
+
+        for userId in allUserIds:
+            self._notifyOfChatListUpdate(userId)
+
+        self._notifyOfChatUpdate(chatId)
+
+    @deferToThreadWrapWithLogger(logger)
+    def createChat(self, fromExtUserId: str, toUserIds: List[str]) -> None:
+        """ Create Chat
+        
+        Used by the API
+        
+        """
+
+        session = self._ormSessionCreator()
+        try:
+            # Create an array of all users in the chat
+            allUserIds = list(toUserIds)
+            allUserIds += [fromExtUserId]
+
+            # Get or create the chat tuple
+            chatTuple = self._getOrCreateChatBlocking(allUserIds, session)
+            chatId = chatTuple.id
+
+            session.commit()
 
         finally:
             session.close()

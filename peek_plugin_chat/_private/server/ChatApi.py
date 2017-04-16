@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 from rx.subjects import Subject
 
@@ -51,6 +52,9 @@ class ChatApi(ChatApiABC):
 
     def sendMessage(self, newMessage: NewMessage) -> None:
         return self._mainController.sendMessageFromExternalUser(newMessage)
+
+    def createChat(self, fromExtUserId: str, toUserIds: List[str]) -> None:
+        return self._mainController.createChat(fromExtUserId, toUserIds)
 
     def receiveMessages(self, toExtUserId: str) -> Subject:
         if toExtUserId not in self._observablesByUserId:

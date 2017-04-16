@@ -1,6 +1,6 @@
-from abc import ABCMeta, abstractmethod
 from typing import Optional, List
 
+from abc import ABCMeta, abstractmethod
 from rx.subjects import Subject
 
 
@@ -95,7 +95,7 @@ class ReceivedMessage:
 
     def __init__(self,
                  fromUserId: str,
-                 allUserIds:List[str],
+                 allUserIds: List[str],
                  message: str,
                  priority: int
                  ):
@@ -135,6 +135,17 @@ class ChatApiABC(metaclass=ABCMeta):
         
         :param newMessage: The definition of the message to send.
         
+        """
+
+    @abstractmethod
+    def createChat(self, fromExtUserId: str, toUserIds: List[str]) -> None:
+        """ Create a Chat
+
+        Send a new chat message to a user.
+
+        :param fromExtUserId: The external userId sending the message
+        :param toUserIds: The Peek userIds to send the message to
+
         """
 
     @abstractmethod

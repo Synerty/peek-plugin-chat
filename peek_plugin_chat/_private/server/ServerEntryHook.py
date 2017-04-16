@@ -16,7 +16,7 @@ from peek_plugin_chat._private.server.controller.TaskController import TaskContr
 from peek_plugin_chat._private.storage import DeclarativeBase, loadStorageTuples
 from peek_plugin_chat._private.tuples import loadPrivateTuples
 from peek_plugin_chat.tuples import loadPublicTuples
-from peek_plugin_user.server.UserDbServerApiABC import UserDbServerApiABC
+from peek_plugin_user.server.UserServerApiABC import UserServerApiABC
 
 logger = logging.getLogger(__name__)
 
@@ -64,8 +64,8 @@ class ServerEntryHook(PluginServerEntryHookABC, PluginServerStorageEntryHookABC)
         self._loadedObjects.append(self._api)  # For auto shutdown
 
         userPluginApi = self.platform.getOtherPluginApi("peek_plugin_user")
-        assert isinstance(userPluginApi, UserDbServerApiABC), (
-            "Expected UserDbServerApiABC")
+        assert isinstance(userPluginApi, UserServerApiABC), (
+            "Expected UserServerApiABC")
 
         activeTaskPluginApi = self.platform.getOtherPluginApi("peek_plugin_active_task")
         assert isinstance(activeTaskPluginApi, ActiveTaskApiABC), (
