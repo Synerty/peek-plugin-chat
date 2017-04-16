@@ -30,9 +30,9 @@
              [class.bg-danger]="isEmergencyPriority(msg)"
              [class.text-right]="!isMessageFromThisUser(msg)">
 
-            <h5 *ngIf="isNormalPriority(msg)" style="white-space: pre"
+            <h5 *ngIf="isNormalPriority(msg)" style="white-space: pre-wrap"
             >{{msg.message}}</h5>
-            <h4 *ngIf="isEmergencyPriority(msg)" style="white-space: pre"
+            <h4 *ngIf="isEmergencyPriority(msg)" style="white-space: pre-wrap"
             >{{msg.message}}</h4>
 
         </div>

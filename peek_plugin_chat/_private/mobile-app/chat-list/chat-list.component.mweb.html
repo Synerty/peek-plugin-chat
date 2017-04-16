@@ -23,7 +23,7 @@
 
 
     <!-- Use the template tag syntax, as this works with nativescript too -->
-    <template ngFor let-chat [ngForOf]="chats" let-i="index">
+    <ng-template ngFor let-chat [ngForOf]="chats" let-i="index">
         <div class="row" (click)="chatClicked(chat)" class="well">
             <div class="col-sm-12">
 
@@ -39,6 +39,6 @@
                 </span>
             </div>
         </div>
-    </template>
+    </ng-template>
 
 </div>
