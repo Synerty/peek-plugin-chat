@@ -197,7 +197,6 @@ class MainController(TupleActionProcessorDelegateABC):
 
             # Send alerts to the other users.
             alertUserIds = list(filter(lambda s: s != action.fromUserId, userIds))
-            alertUserIds = list(filter(lambda s: s != action.fromUserId, userIds))
             self._taskController.addTask(chatTuple, messageTuple, alertUserIds)
 
 

@@ -31,7 +31,7 @@
 
                 <!-- Users -->
                 <WrapLayout *ngFor="let user of otherChatUsers(chat)">
-                    <Label class="h3 peek-field-data-text bg-primary" textWrap="true"
+                    <Label class="h3 peek-field-data-text bg-success p-5" textWrap="true"
                            text="{{userDisplayName(user)}} ({{user.userId}})"></Label>
                     <Label text=" "></Label>
                 </WrapLayout>
@@ -40,3 +40,4 @@
         </StackLayout>
     </ListView>
 </StackLayout>
+

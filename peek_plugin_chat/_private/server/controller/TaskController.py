@@ -1,13 +1,13 @@
 import logging
-from copy import copy
 from typing import List
 
-from twisted.internet.defer import inlineCallbacks, succeed
-
+from copy import copy
 from peek_plugin_active_task.server.ActiveTaskApiABC import ActiveTaskApiABC, NewTask
 from peek_plugin_chat._private.PluginNames import chatFilt
 from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
 from peek_plugin_chat._private.storage.MessageTuple import MessageTuple
+from twisted.internet.defer import inlineCallbacks, succeed
+
 from vortex.Payload import Payload
 from vortex.PayloadEndpoint import PayloadEndpoint
 
@@ -34,6 +34,15 @@ class TaskController:
         self._deliveredEndpoint = None
         self._soapController = None
 
+    @inlineCallbacks
+    def _processTaskDelivered(self, payload, **kwargs):
+        logger.debug("_processTaskDelivered called")
+        try:
+            yield succeed(True)
+
+        except Exception as e:
+            logger.exception(e)
+
     def _makeUniqueId(self, chatId: int, userId: str):
         return "peek_plugin_chat.new_message.%s.%s" % (userId, chatId)
 
@@ -46,29 +55,20 @@ class TaskController:
     def _makeMessagesRoutePath(self, chatTuple: ChatTuple):
         return "/peek_plugin_chat/messages/%s" % chatTuple.id
 
-    def _shouldNotifyBySound(self, message: MessageTuple):
+    def _notifyBy(self, message: MessageTuple):
+        if message.priority == MessageTuple.PRIORITY_EMERGENCY:
+            return (NewTask.NOTIFY_BY_SMS
+                    | NewTask.NOTIFY_BY_DEVICE_SOUND
+                    | NewTask.NOTIFY_BY_DEVICE_DIALOG)
+
         return (NewTask.NOTIFY_BY_DEVICE_SOUND
-                if message.priority == MessageTuple.PRIORITY_EMERGENCY else
-                0)
+                | NewTask.NOTIFY_BY_DEVICE_POPUP)
 
-    def _shouldTaskSendSMS(self, message: MessageTuple):
-        return (NewTask.NOTIFY_BY_SMS
-                if message.priority == MessageTuple.PRIORITY_EMERGENCY else
-                0)
+    def _displayPriority(self, message: MessageTuple):
+        if message.priority == MessageTuple.PRIORITY_EMERGENCY:
+            return NewTask.PRIORITY_DANGER
 
-    @inlineCallbacks
-    def _processTaskDelivered(self, payload, **kwargs):
-        logger.debug("_processTaskDelivered called")
-        try:
-            # msgId = payload.filt["msgId"]
-            # userId = payload.filt["userId"]
-            # action = payload.filt["action"]
-            # jobId = payload.filt["jobId"]
-
-            yield succeed(True)
-
-        except Exception as e:
-            logger.exception(e)
+        return NewTask.PRIORITY_SUCCESS
 
     @inlineCallbacks
     def addTask(self, chat: ChatTuple, message: MessageTuple, userIds: List[str]):
@@ -83,14 +83,14 @@ class TaskController:
                     uniqueId=self._makeUniqueId(chat.id, userId),
                     userId=userId,
                     title=self._makeTaskTitle(message),
+                    description=message.message,
                     displayAs=NewTask.DISPLAY_AS_MESSAGE,
+                    displayPriority=self._displayPriority(message),
                     routePath=self._makeMessagesRoutePath(chat),
                     onDeliveredPayload=onDeliverPayload,
                     autoDelete=NewTask.AUTO_DELETE_ON_SELECT,
                     overwriteExisting=True,
-                    notificationRequiredFlags=self._shouldNotifyBySound(message)
-                                              | NewTask.NOTIFY_BY_DEVICE_POPUP
-                                              | self._shouldTaskSendSMS(message)
+                    notificationRequiredFlags=self._notifyBy(message)
                 )
 
                 yield self._activeTaskPluginApi.addTask(newTask)

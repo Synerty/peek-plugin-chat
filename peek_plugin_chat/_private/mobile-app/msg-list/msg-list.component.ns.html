@@ -5,7 +5,8 @@
     <!-- No Messages -->
     <Label row="1" *ngIf="!haveMessages()" text="No messages"></Label>
 
-    <ListView row="2" [items]="messages()" #messageListRef>
+    <ListView row="2" [items]="messages()" #messageListRef
+              separatorColor="transparent">
         <ng-template let-i="index" let-msg="item" let-odd="odd" let-even="even">
             <StackLayout [class.odd]="odd" [class.even]="even">
                 <!-- Unread marker -->
@@ -25,13 +26,13 @@
 
                 <!-- Message -->
                 <GridLayout columns="*, *, *" rows="auto" width="*">
-                    <Label class="h3 peek-field-data-text" row="0" colspan="2"
+                    <Label class="h3 peek-field-data-text p-5" row="0" colspan="2"
                            [class.text-right]="!isMessageFromThisUser(msg)"
                            [col]="isMessageFromThisUser(msg) ? 0 : 1"
                            textWrap="true"
                            [text]="msg.message"
                            [class.h4]="isNormalPriority(msg)"
-                           [class.bg-primary]="isNormalPriority(msg)"
+                           [class.bg-success]="isNormalPriority(msg)"
                            [class.h3]="isEmergencyPriority(msg)"
                            [class.bg-danger]="isEmergencyPriority(msg)"></Label>
 
