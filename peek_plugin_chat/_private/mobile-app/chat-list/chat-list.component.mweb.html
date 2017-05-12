@@ -34,7 +34,7 @@
             <fa class="icon" name="comment-o" *ngIf="!isChatRead(chat)"></fa>
 
             <!-- Other Users -->
-            <div class="topic" *ngFor="let user of otherChatUsers(chat)">
+            <div class="title" *ngFor="let user of otherChatUsers(chat)">
                 {{userDisplayName(user)}} ({{user.userId}})
             </div>
         </div>

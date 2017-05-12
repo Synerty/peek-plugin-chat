@@ -42,12 +42,12 @@
                      [class.bg-success]="isNormalPriority(msg)"
                      [class.bg-danger]="isEmergencyPriority(msg)">
 
-                    <div class="h5"
+                    <div class="normal-text"
                          *ngIf="isNormalPriority(msg)">
                         {{msg.message}}
 
                     </div>
-                    <div class="h4"
+                    <div class="emergency-text"
                          *ngIf="isEmergencyPriority(msg)">
                         {{msg.message}}
 
