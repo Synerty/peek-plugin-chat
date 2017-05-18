@@ -24,8 +24,8 @@
             <hr *ngIf="isFirstUnreadMesage(i)"/>
 
             <!-- From and Date -->
-            <div [class.sent]="isMessageFromThisUser(msg)"
-                 [class.received]="!isMessageFromThisUser(msg)">
+            <div [class.chat-messages-sent]="isMessageFromThisUser(msg)"
+                 [class.chat-messages-received]="!isMessageFromThisUser(msg)">
                 <div class="chat-messages-details"
                      *ngIf="!isMessageFromThisUser(msg)">
                     From {{userDisplayName(msg)}} ({{msg.fromUserId}}), {{timePast(msg)}}
@@ -58,17 +58,17 @@
     </div>
 
     <div class="chat-messages-compose">
-    <textarea class="form-control"
+    <textarea class="form-control chat-messages-new-text"
               [(ngModel)]="newMessageText">
 
     </textarea>
-        <button class="btn" type="button"
+        <button class="btn chat-messages-btn" type="button"
                 [disabled]="!sendEnabled()"
                 (click)="sendMsgClicked()">
             Send
 
         </button>
-        <button class="btn" type="button"
+        <button class="btn chat-messages-btn" type="button"
                 (click)="sendSosClicked()">
             SOS
 
