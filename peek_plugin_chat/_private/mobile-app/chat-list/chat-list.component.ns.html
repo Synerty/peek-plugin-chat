@@ -1,6 +1,5 @@
-<StackLayout class="p-20">
+<StackLayout>
 
-    <!--NEW CHAT DIALOG -->
     <pl-chat-new-chat
             *ngIf="isNewChatDialogShown()"
             (create)="dialogConfirmed($event)"
@@ -9,33 +8,39 @@
 
     </pl-chat-new-chat>
 
-    <!-- top nav buttons -->
-    <WrapLayout *ngIf="!isNewChatDialogShown()">
-        <Button text="New Chat" (tap)="newChatClicked()"></Button>
-    </WrapLayout>
+    <GridLayout class="peek-nav-section"
+                *ngIf="!isNewChatDialogShown()"
+                rows="auto" columns="auto, auto">
 
+        <Button class="btn"
+                text="New Chat"
+                (tap)="newChatClicked()">
 
-    <!-- chat list -->
-    <ListView [items]="chats">
-        <StackLayout *ngFor="let i = index; let chat of chats"
+        </Button>
+    </GridLayout>
+
+    <ListView class="plugin-chat-list peek-nav-bar-padding"
+              [items]="chats">
+        <StackLayout class="chat-list-messages"
+                     *ngFor="let i = index; let chat of chats"
                      [class.odd]="odd" [class.even]="even"
                      (tap)="chatClicked(chat)">
             <WrapLayout>
 
-                <!-- Unread indicator -->
-                <Label *ngIf="isChatRead(chat)" class="fa h2"
+                <Label class="chat-list-icon"
+                       *ngIf="isChatRead(chat)" class="fa h2"
                        [text]="'fa-fw' | fonticon"></Label>
 
-                <Label *ngIf="!isChatRead(chat)" class="fa h2"
+                <Label class="chat-list-icon"
+                       *ngIf="!isChatRead(chat)" class="fa h2"
                        [text]="'fa-comment-o' | fonticon"></Label>
 
-                <!-- Users -->
                 <WrapLayout *ngFor="let user of otherChatUsers(chat)">
-                    <Label class="h3 peek-field-data-text bg-success p-5" textWrap="true"
+                    <Label class="chat-list-title"
+                           textWrap="true"
                            text="{{userDisplayName(user)}} ({{user.userId}})"></Label>
                     <Label text=" "></Label>
                 </WrapLayout>
-
             </WrapLayout>
         </StackLayout>
     </ListView>
