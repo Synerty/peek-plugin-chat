@@ -35,7 +35,7 @@
                            text="{{timePast(msg)}} ago"></Label>
 
                     <!-- Message -->
-                    <GridLayout columns="*, *, *" rows="auto" width="*">
+                    <GridLayout columns="*, *, *" rows="auto" >
                         <Label class="chat-messages-normal" row="0" colspan="2"
                                [class.text-right]="!isMessageFromThisUser(msg)"
                                [col]="isMessageFromThisUser(msg) ? 0 : 1"
@@ -54,9 +54,7 @@
 
         <GridLayout class="chat-messages-compose"
                     rows="auto"
-                    columns="*, auto, auto"
-                    width="*"
-                    height="auto">
+                    columns="*, auto, auto">
             <TextView class="chat-messages-new-text"
                       [(ngModel)]="newMessageText"
                       returnKeyType="send"

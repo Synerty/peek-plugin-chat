@@ -23,7 +23,6 @@ import {
     chatTupleOfflineServiceName
 } from "@peek/peek_plugin_chat/_private";
 // Import the default route component
-import {ChatComponent} from "./chat.component";
 import {MsgListComponent} from "./msg-list/msg-list.component";
 import {ChatListComponent} from "./chat-list/chat-list.component";
 import {pluginRoutes} from "./chat.routes";
@@ -75,7 +74,7 @@ export function tupleActionPushNameServiceFactory() {
             useFactory: tupleActionPushNameServiceFactory
         },
     ],
-    declarations: [ChatComponent, MsgListComponent, ChatListComponent, NewChatComponent]
+    declarations: [MsgListComponent, ChatListComponent, NewChatComponent]
 })
 export class ChatModule {
 }

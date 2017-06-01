@@ -1,14 +1,16 @@
 import {
-    animate,
     Component,
     EventEmitter,
     Input,
     Output,
+} from "@angular/core";
+import {
+    animate,
     state,
     style,
     transition,
     trigger
-} from "@angular/core";
+} from "@angular/animations";
 import {UserListItemTuple, UserService} from "@peek/peek_plugin_user";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 

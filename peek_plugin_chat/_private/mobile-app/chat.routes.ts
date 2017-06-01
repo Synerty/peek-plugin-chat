@@ -2,7 +2,6 @@ import {Routes} from "@angular/router";
 import {LoggedInGuard} from "@peek/peek_plugin_user";
 import {MsgListComponent} from "./msg-list/msg-list.component";
 import {ChatListComponent} from "./chat-list/chat-list.component";
-import {ChatComponent} from "./chat.component";
 
 
 // Define the child routes for this plugin
