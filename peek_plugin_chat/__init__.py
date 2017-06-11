@@ -1,4 +1,4 @@
-__version__ = '0.4.1'
+__version__ = '0.4.2'
 
 
 from peek_plugin_base.server.PluginServerEntryHookABC import PluginServerEntryHookABC
