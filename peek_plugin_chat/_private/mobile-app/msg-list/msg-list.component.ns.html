@@ -55,18 +55,16 @@
         <GridLayout class="chat-messages-compose"
                     rows="auto"
                     columns="*, auto, auto">
-            <TextView class="chat-messages-new-text"
-                      [(ngModel)]="newMessageText"
-                      returnKeyType="send"
-                      textWrap="true"
-                      (returnPress)="sendMsgClicked()"></TextView>
+
+            <TextView row="0" col="0" class="chat-messages-new-text"
+                      [(ngModel)]="newMessageText"></TextView>
             <Button class="btn chat-messages-btn"
-                    col="1"
+                    row="0" col="1"
                     text="Send"
                     [isEnabled]="sendEnabled()"
                     (tap)="sendMsgClicked()"></Button>
             <Button class="btn chat-messages-btn"
-                    col="2"
+                    row="0" col="2"
                     text="SOS"
                     (tap)="sendSosClicked()"></Button>
 
