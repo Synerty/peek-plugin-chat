@@ -7,14 +7,13 @@
 
 </pl-chat-new-chat>
 
-
-<div class="peek-nav-section">
+<div class="peek-nav-section"
+     *ngIf="!isNewChatDialogShown()">
     <!--
         The following 'div' groups button to the left of the Nav Bar.
         Can contain one to many buttons
     -->
-    <div class="btn-group pull-left"
-         *ngIf="!isNewChatDialogShown()"
+    <div class="btn-group pull-right"
          role="group">
         <button class="nav-section-btn"
                 role="group"
@@ -23,6 +22,7 @@
         </button>
     </div>
 </div>
+<div class="peek-nav-bar-padding" *ngIf="!isNewChatDialogShown()"></div>
 
 <div class="plugin-chat-list">
     <!-- Use the template tag syntax, as this works with nativescript too -->
