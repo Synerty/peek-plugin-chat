@@ -1,10 +1,10 @@
-<div class="plugin-chat-new"
+    <div class="mobile-dialog"
      [@dialogAnimation]="dialogAnimationState"
      (@dialogAnimation.done)="animationDone($event)">
 
-    <div class="h2">
+    <label class="dialog-label">
         Start a chat with:
-    </div>
+    </label>
 
     <div class="p"
          *ngIf="!createButtonEnabled()">
@@ -17,11 +17,11 @@
     </ul>
 
     <div class="form-group">
-        <label class="h4"
+        <label class="dialog-label"
                for="userIdField">
             Add User:
         </label>
-        <select class="form-control"
+        <select class="form-control dialog-selector"
                 id="userIdField"
                 name="userId"
                 [(ngModel)]="selectedUserIndex">
@@ -33,18 +33,18 @@
 
 
     <!-- BEGIN HANDBACK DIALOG -->
-    <div>
-        <Button class="btn" (click)="addUserClicked()"
+    <div class="btn-group pull-right">
+        <Button class="dialog-action-btn" (click)="addUserClicked()"
                 [disabled]="!newButtonEnabled()">
             Add User
         </Button>
 
-        <Button class="btn" (click)="confirmClicked(false)"
+        <Button class="dialog-action-btn" (click)="confirmClicked(false)"
                 [disabled]="!createButtonEnabled()">
             Create Chat
         </Button>
 
-        <Button class="btn" (click)="cancelClicked(false)">
+        <Button class="dialog-action-btn" (click)="cancelClicked(false)">
             Cancel
         </Button>
     </div>
