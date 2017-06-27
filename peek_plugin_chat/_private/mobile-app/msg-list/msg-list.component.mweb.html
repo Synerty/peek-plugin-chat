@@ -48,7 +48,7 @@
     <div class="row">
         <div class="col-xs-12">
             <textarea class="form-control" [(ngModel)]="newMessageText"></textarea>
-            <div class="btn-group chat-messages-btn-group pull-right">
+            <div class="btn-group chat-messages-btn-group">
                 <button class="chat-messages-btn" type="button"
                         [disabled]="!sendEnabled()"
                         (click)="sendMsgClicked()">Send
