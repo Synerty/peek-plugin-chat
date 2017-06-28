@@ -1,14 +1,15 @@
-<StackLayout class="plugin-chat-new">
-    <Label class="title h2 pull-left"
+<StackLayout class="m-10">
+    <Label class="h2"
            text="Start a chat with:"></Label>
 
-    <Label class="p"
+    <Label class="h3"
            *ngIf="!createButtonEnabled()"
            text="No users selected"></Label>
 
     <StackLayout class="input-field"
+                 row="0" col="0"
                  horizontalAlignment="stretch">
-        <ListPicker #picker class="p"
+        <ListPicker #picker class="p-15"
                     [items]="usersStrList"
                     (selectedIndexChange)="selectedUserIndex = picker.selectedIndex">
         </ListPicker>
