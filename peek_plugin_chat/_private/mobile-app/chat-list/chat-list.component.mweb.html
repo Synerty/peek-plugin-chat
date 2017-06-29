@@ -16,7 +16,6 @@
     <div class="btn-group pull-right"
          role="group">
         <button class="nav-section-btn"
-                role="group"
                 (click)="newChatClicked()">
             New Chat
         </button>
@@ -34,9 +33,9 @@
             <fa class="chat-list-icon" name="comment-o" *ngIf="!isChatRead(chat)"></fa>
 
             <!-- Other Users -->
-            <div class="chat-list-title" *ngFor="let user of otherChatUsers(chat)">
+            <span class="chat-list-title" *ngFor="let user of otherChatUsers(chat)">
                 {{userDisplayName(user)}} ({{user.userId}})
-            </div>
+            </span>
         </div>
     </ng-template>
 </div>
