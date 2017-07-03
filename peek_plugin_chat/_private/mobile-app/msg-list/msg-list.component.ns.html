@@ -1,19 +1,24 @@
-<StackLayout>
+<GridLayout columns="*" rows="auto, auto, *, auto">
 
-    <GridLayout class="peek-nav-section"
-                rows="auto" columns="auto, *, auto">
-        <WrapLayout class="btn-group"
-                    row="0" col="0">
-            <Button class="btn" text="<" (tap)="navToChatsClicked()"></Button>
-        </WrapLayout>
-    </GridLayout>
-    <StackLayout class="hr"></StackLayout>
+    <StackLayout>
+        <GridLayout class="peek-nav-section"
+                    rows="auto" columns="auto, *, auto">
+            <WrapLayout class="btn-group"
+                        row="0" col="0">
+                <Button class="btn" text="<"
+                        (tap)="navToChatsClicked()"></Button>
+            </WrapLayout>
+        </GridLayout>
+        <StackLayout class="hr"></StackLayout>
+    </StackLayout>
 
     <Label class="p"
+           row="1"
            *ngIf="!haveMessages()"
            text="No messages"></Label>
 
     <ListView class="plugin-chat-messages"
+              row="2"
               *ngIf="haveMessages()"
               [items]="messages()" #messageListRef
               separatorColor="transparent">
@@ -52,6 +57,7 @@
     </ListView>
 
     <GridLayout class="chat-messages-compose"
+                row="3"
                 rows="auto"
                 columns="*, auto, auto">
 
@@ -68,4 +74,4 @@
                 (tap)="sendSosClicked()"></Button>
 
     </GridLayout>
-</StackLayout>
+</GridLayout>
