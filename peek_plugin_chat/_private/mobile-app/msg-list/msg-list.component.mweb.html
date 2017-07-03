@@ -44,10 +44,10 @@
     </div>
 </div>
 
-<div class="container">
+<div class="container chat-messages-compose">
     <div class="row">
         <div class="col-xs-12">
-            <textarea class="form-control" [(ngModel)]="newMessageText"></textarea>
+            <textarea class="form-control chat-messages-new-text" [(ngModel)]="newMessageText"></textarea>
             <div class="btn-group chat-messages-btn-group">
                 <button class="chat-messages-btn" type="button"
                         [disabled]="!sendEnabled()"
