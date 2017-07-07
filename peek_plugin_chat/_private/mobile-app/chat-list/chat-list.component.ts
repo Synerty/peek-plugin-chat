@@ -1,6 +1,6 @@
 import {Component} from "@angular/core";
 import {Router} from "@angular/router";
-import {TitleService} from "@synerty/peek-mobile-util";
+import {TitleService} from "@synerty/peek-util";
 import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
 import {
     chatBaseUrl,

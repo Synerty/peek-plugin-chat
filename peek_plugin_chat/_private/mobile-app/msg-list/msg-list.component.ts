@@ -10,7 +10,7 @@ import {
     SendMessageActionTuple
 } from "@peek/peek_plugin_chat/_private";
 
-import {TitleService} from "@synerty/peek-mobile-util";
+import {TitleService} from "@synerty/peek-util";
 import {UserService} from "@peek/peek_plugin_user";
 
 import {
