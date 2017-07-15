@@ -2,12 +2,12 @@ import logging
 from typing import List
 
 from copy import copy
-from peek_plugin_active_task.server.ActiveTaskApiABC import ActiveTaskApiABC, NewTask
 from peek_plugin_chat._private.PluginNames import chatFilt
 from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
 from peek_plugin_chat._private.storage.MessageTuple import MessageTuple
 from twisted.internet.defer import inlineCallbacks, succeed
 
+from peek_plugin_inbox.server.InboxApiABC import InboxApiABC, NewTask
 from vortex.Payload import Payload
 from vortex.PayloadEndpoint import PayloadEndpoint
 
@@ -20,10 +20,10 @@ _deliverdPayloadFilt.update(chatFilt)
 
 
 class TaskController:
-    def __init__(self, activeTaskPluginApi: ActiveTaskApiABC):
+    def __init__(self, activeTaskPluginApi: InboxApiABC):
         self._activeTaskPluginApi = activeTaskPluginApi
 
-        assert isinstance(self._activeTaskPluginApi, ActiveTaskApiABC), (
+        assert isinstance(self._activeTaskPluginApi, InboxApiABC), (
             "Expected instance of ActiveTaskServerApiABC, received %s" % self._activeTaskPluginApi)
 
         self._deliveredEndpoint = PayloadEndpoint(
