@@ -57,7 +57,7 @@ setup(
     name=pip_package_name,
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     package_data={'': package_files},
-    install_requires=['peek-plugin-base', 'peek-plugin-active-task', 'peek-plugin-user'],
+    install_requires=['peek-plugin-base', 'peek-plugin-inbox', 'peek-plugin-user'],
     zip_safe=False,
     version=package_version,
     description=description,
