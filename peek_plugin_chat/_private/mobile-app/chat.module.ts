@@ -56,7 +56,6 @@ export function tupleActionPushNameServiceFactory() {
     ],
     exports: [],
     providers: [
-        LoggedInGuard,
         TupleOfflineStorageService,
         {
             provide: TupleOfflineStorageNameService,
