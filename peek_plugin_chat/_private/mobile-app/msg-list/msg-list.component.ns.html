@@ -41,11 +41,10 @@
                 <!-- Message -->
                 <GridLayout columns="*, *, *" rows="auto">
                     <Label row="0" colspan="2"
+                           class="chat-messages-contents"
                            [class.chat-messages-received]="!isMessageFromThisUser(msg)"
                            [class.chat-messages-sent]="isMessageFromThisUser(msg)"
-                           [class.chat-messages-normal]="isNormalPriority(msg)"
                            [class.bg-success]="isNormalPriority(msg)"
-                           [class.chat-messages-emergency]="isEmergencyPriority(msg)"
                            [class.bg-danger]="isEmergencyPriority(msg)"
                            [col]="isMessageFromThisUser(msg) ? 0 : 1"
                            textWrap="true"
@@ -58,20 +57,25 @@
 
     <GridLayout class="chat-messages-compose"
                 row="3"
-                rows="auto"
-                columns="*, auto, auto">
+                rows="60"
+                columns="*, auto">
 
         <TextView row="0" col="0" class="chat-messages-new-text"
                   [(ngModel)]="newMessageText"></TextView>
-        <Button class="chat-messages-btn"
-                row="0" col="1"
-                text="Send"
-                [isEnabled]="sendEnabled()"
-                (tap)="sendMsgClicked()"></Button>
-        <Button class="chat-messages-btn"
-                row="0" col="2"
-                text="SOS"
-                (tap)="sendSosClicked()"></Button>
+        <GridLayout class="chat-messages-btn-group"
+                    row="0" col="1"
+                    rows="60"
+                    columns="80, 70">
+            <Button class="chat-messages-btn"
+                    row="0" col="0"
+                    text="Send"
+                    [isEnabled]="sendEnabled()"
+                    (tap)="sendMsgClicked()"></Button>
+            <Button class="chat-messages-btn"
+                    row="0" col="1"
+                    text="SOS"
+                    (tap)="sendSosClicked()"></Button>
 
+        </GridLayout>
     </GridLayout>
 </GridLayout>

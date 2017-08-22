@@ -21,28 +21,32 @@
 
 
     <!-- chat list -->
-    <ListView class="plugin-chat-list" [items]="chats">
-        <StackLayout class="chat-list-messages"
-                     *ngFor="let i = index; let chat of chats"
-                     [class.odd]="odd" [class.even]="even"
-                     (tap)="chatClicked(chat)">
-            <WrapLayout>
+    <GridLayout columns="*" rows="*">
+        <ListView class="plugin-chat-list" [items]="chats">
+            <StackLayout *ngFor="let i = index; let chat of chats"
+                         (tap)="chatClicked(chat)">
+                <Border class="chat-list-messages">
+                    <WrapLayout class="chat-list-group">
 
-                <!-- Unread indicator -->
-                <Label *ngIf="isChatRead(chat)" class="fa chat-list-icon"
-                       [text]="'fa-fw' | fonticon"></Label>
+                        <!-- Unread indicator -->
+                        <Label *ngIf="isChatRead(chat)"
+                               class="fa chat-list-icon"
+                               [text]="'fa-fw' | fonticon"></Label>
 
-                <Label *ngIf="!isChatRead(chat)" class="fa chat-list-icon"
-                       [text]="'fa-comment-o' | fonticon"></Label>
+                        <Label *ngIf="!isChatRead(chat)"
+                               class="fa chat-list-icon"
+                               [text]="'fa-comment-o' | fonticon"></Label>
 
-                <!-- Users -->
-                <WrapLayout *ngFor="let user of otherChatUsers(chat)">
-                    <Label class="chat-list-title" textWrap="true"
-                           text="{{userDisplayName(user)}} ({{user.userId}}) "></Label>
-                </WrapLayout>
+                        <!-- Users -->
+                        <WrapLayout *ngFor="let user of otherChatUsers(chat)">
+                            <Label class="chat-list-title" textWrap="true"
+                                   text="{{userDisplayName(user)}} ({{user.userId}}) "></Label>
+                        </WrapLayout>
 
-            </WrapLayout>
-        </StackLayout>
-    </ListView>
+                    </WrapLayout>
+                </Border>
+            </StackLayout>
+        </ListView>
+    </GridLayout>
 </StackLayout>
 
