@@ -60,7 +60,9 @@
                 rows="60"
                 columns="*, auto">
 
-        <TextView row="0" col="0" class="chat-messages-new-text"
+        <TextView row="0" col="0"
+                  class="chat-messages-new-text"
+                  hint="Write your message here"
                   [(ngModel)]="newMessageText"></TextView>
         <GridLayout class="chat-messages-btn-group"
                     row="0" col="1"
