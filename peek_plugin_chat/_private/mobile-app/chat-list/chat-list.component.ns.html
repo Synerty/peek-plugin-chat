@@ -12,10 +12,13 @@
     <GridLayout class="peek-nav-section"
                 rows="auto" columns="auto, *, auto"
                 *ngIf="!isNewChatDialogShown()">
-        <WrapLayout class="btn-group"
-                    row="0" col="2">
-            <Button class="btn" text="New Chat" (tap)="newChatClicked()"></Button>
-        </WrapLayout>
+        <GridLayout class="btn-group"
+                    row="0" col="2"
+                    rows="auto" columns="auto">
+            <Button class="nav-section-btn fa"
+                    text="{{'fa-plus' | fonticon }} New Chat"
+                    (tap)="newChatClicked()"></Button>
+        </GridLayout>
     </GridLayout>
     <StackLayout class="hr"></StackLayout>
 
