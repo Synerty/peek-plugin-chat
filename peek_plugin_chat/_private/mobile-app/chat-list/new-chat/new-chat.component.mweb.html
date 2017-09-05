@@ -7,17 +7,18 @@
             Start a chat with:
         </label>
 
-        <div class="p"
-             *ngIf="!createButtonEnabled()">
+        <label class="dialog-value"
+               *ngIf="!createButtonEnabled()">
             No users selected
-        </div>
-        <ul>
-            <li *ngFor="let u of data.users">
-                {{u.displayName}}
-            </li>
-        </ul>
+        </label>
 
-        <div class="form-group">
+        <label class="dialog-value bg-success"
+               *ngFor="let user of data.users">
+            {{user.displayName}}
+        </label>
+
+        <div class="form-group"
+        *ngIf="usersStrList.length > 0">
             <label class="dialog-label"
                    for="userIdField">
                 Add User:
