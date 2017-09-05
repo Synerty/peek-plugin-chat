@@ -1,52 +1,59 @@
-<StackLayout class="peek-details-section m-10">
+<StackLayout class="mobile-dialog">
 
     <!--
     using GridLayout can spread the ListView to fill the space and
     send the Picker and buttons to the bottom of the screen.
     -->
-    <GridLayout rows="auto, auto, *, auto, auto" columns="*">
-        <Label class="details-section-title"
-               row="0" col="0"
-               text="Start a chat with:"></Label>
+    <GridLayout rows="auto, auto, auto" columns="*">
 
-        <Label *ngIf="!createButtonEnabled()"
-               row="1" col="0"
-               class="details-section-value"
-               text="No users selected"></Label>
+        <GridLayout row="0" col="0"
+                    rows="auto" columns="auto, *">
+            <GridLayout row="0" col="0"
+                        rows="auto, *" columns="*">
+                <Label row="0" col="0"
+                       class="dialog-label"
+                       text="Start a chat with:"></Label>
+            </GridLayout>
 
-        <ListView *ngIf="createButtonEnabled()"
-                  row="2" col="0"
-                  [items]="data.users">
-            <ng-template let-item="item" let-i="index" let-odd="odd" let-even="even">
-                <Label class="details-section-value"
-                       [class.odd]="odd" [class.even]="even"
-                       [text]="item.displayName"></Label>
-            </ng-template>
-        </ListView>
+            <Label *ngIf="!createButtonEnabled()"
+                   row="0" col="1"
+                   class="dialog-value"
+                   text="No users selected"></Label>
+
+            <WrapLayout *ngIf="createButtonEnabled()"
+                        row="0" col="1"
+                        [items]="data.users">
+                <Label class="dialog-value bg-success"
+                       *ngFor="let user of data.users"
+                       [text]="user.displayName"></Label>
+            </WrapLayout>
+        </GridLayout>
 
         <StackLayout class="input-field"
-                     row="3" col="0"
-                     horizontalAlignment="stretch">
-            <ListPicker #picker class="p-15"
+                     row="1" col="0"
+                     horizontalAlignment="stretch"
+                     *ngIf="usersStrList.length > 0">
+            <ListPicker #picker class="dialog-value"
                         [items]="usersStrList"
                         (selectedIndexChange)="selectedUserIndex = picker.selectedIndex">
             </ListPicker>
         </StackLayout>
 
-        <GridLayout row="4" col="0"
-                    columns="*,auto, auto, auto" rows="auto">
-            <Button class="btn"
-                    col="1"
+        <GridLayout row="2" col="0"
+                    rows="auto" columns="*,auto, auto, auto"
+                    class="dialog-action-btn-group">
+            <Button class="dialog-action-btn dialog-action-btn-divider"
+                    row="0" col="1"
                     (tap)="addUserClicked()"
                     text="Add User"></Button>
-            <Button class="btn"
-                    *ngIf="createButtonEnabled()"
-                    col="2"
+            <Button class="dialog-action-btn dialog-action-btn-divider"
+                    [class.dialog-action-btn-disabled]="!createButtonEnabled()"
+                    row="0" col="2"
                     text="Create Chat"
                     (tap)="confirmClicked(true)">
             </Button>
-            <Button class="btn"
-                    col="3"
+            <Button class="dialog-action-btn"
+                    row="0" col="3"
                     text="Cancel"
                     (tap)="cancelClicked(true)">
             </Button>
