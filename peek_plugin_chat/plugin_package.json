@@ -2,7 +2,7 @@
     "plugin": {
         "title": "Messages",
         "packageName": "peek_plugin_chat",
-    "version":"0.7.2",
+    "version":"0.7.4",
         "buildNumber": "#PLUGIN_BUILD#",
         "buildDate": "#BUILD_DATE#",
         "creator": "Synerty Pty Ltd",
