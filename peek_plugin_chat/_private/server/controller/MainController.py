@@ -14,7 +14,7 @@ from peek_plugin_chat._private.tuples.ChatUserReadActionTuple import \
 from peek_plugin_chat._private.tuples.CreateChatActionTuple import CreateChatActionTuple
 from peek_plugin_chat._private.tuples.SendMessageActionTuple import SendMessageActionTuple
 from peek_plugin_chat.server.ChatApiABC import NewMessage
-from peek_plugin_user.server.UserServerApiABC import UserServerApiABC
+from peek_plugin_user.server.UserApiABC import UserApiABC
 from vortex.DeferUtil import vortexLogFailure, deferToThreadWrapWithLogger
 from vortex.TupleAction import TupleActionABC
 from vortex.TupleSelector import TupleSelector
@@ -31,7 +31,7 @@ class MainController(TupleActionProcessorDelegateABC):
 
     def __init__(self, dbSessionCreator,
                  ourApi,  #: ChatApi,
-                 userPluginApi: UserServerApiABC,
+                 userPluginApi: UserApiABC,
                  taskController: TaskController,
                  tupleObservable: TupleDataObservableHandler):
 
