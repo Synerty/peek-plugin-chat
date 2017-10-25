@@ -2,6 +2,7 @@ import logging
 from typing import List
 
 from rx.subjects import Subject
+from twisted.internet import reactor
 
 from peek_plugin_chat._private.server.controller.MainController import MainController
 from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
@@ -48,7 +49,7 @@ class ChatApi(ChatApiABC):
             if user.userId not in self._observablesByUserId:
                 continue
 
-            self._observablesByUserId[user.userId].on_next(receivedMessage)
+            reactor.callLater(0, self._observablesByUserId[user.userId].on_next, receivedMessage)
 
     def sendMessage(self, newMessage: NewMessage) -> None:
         return self._mainController.sendMessageFromExternalUser(newMessage)
