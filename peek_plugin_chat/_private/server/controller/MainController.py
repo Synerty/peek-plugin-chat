@@ -2,6 +2,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import List
 
+from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 
 from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
@@ -197,7 +198,7 @@ class MainController(TupleActionProcessorDelegateABC):
 
             # Send alerts to the other users.
             alertUserIds = list(filter(lambda s: s != action.fromUserId, userIds))
-            self._taskController.addTask(chatTuple, messageTuple, alertUserIds)
+            reactor.callLater(0, self._taskController.addTask, chatTuple, messageTuple, alertUserIds)
 
 
         finally:
@@ -248,7 +249,7 @@ class MainController(TupleActionProcessorDelegateABC):
             session.commit()
 
             # Remove the unread message if there are any
-            self._taskController.removeTask(chatId, userId)
+            reactor.callLater(0, self._taskController.removeTask, chatId, userId)
 
         finally:
             session.close()
@@ -306,7 +307,7 @@ class MainController(TupleActionProcessorDelegateABC):
 
             # Send alerts to the other users.
             alertUserIds = list(filter(lambda s: s != newMessage.fromExtUserId, allUserIds))
-            self._taskController.addTask(chatTuple, messageTuple, alertUserIds)
+            reactor.callLater(0, self._taskController.addTask, chatTuple, messageTuple, alertUserIds)
 
 
         finally:

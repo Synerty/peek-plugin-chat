@@ -49,7 +49,7 @@ class ChatApi(ChatApiABC):
             if user.userId not in self._observablesByUserId:
                 continue
 
-            reactor.callLater(0, self._observablesByUserId[user.userId].on_next, receivedMessage)
+            self._observablesByUserId[user.userId].on_next(receivedMessage)
 
     def sendMessage(self, newMessage: NewMessage) -> None:
         return self._mainController.sendMessageFromExternalUser(newMessage)
