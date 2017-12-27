@@ -150,14 +150,13 @@ class ChatApiABC(metaclass=ABCMeta):
 
     @abstractmethod
     def receiveMessages(self, toExtUserId: str) -> Subject:
-        """ Complete a Task
+        """ Receive Messages
         
-        Mark a task as complete. NOTE, This doesn't delete it.
+        Get the observable that will be fired when new messages are received.
+
+        It will be fired with C{ReceivedMessage}
         
-        .. note:: Integrating plugins must tell the chat plugin when the message
-            has been read.
-        
-        :param toExtUserId: The external systems userId, that the plugin wants to 
+        :param toExtUserId: The external systems userId, that the plugin wants to
             observe messages for. This is just identifier unique to the external
             system.
             

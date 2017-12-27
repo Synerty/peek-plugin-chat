@@ -8,6 +8,7 @@ from peek_plugin_chat._private.server.controller.MainController import MainContr
 from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
 from peek_plugin_chat._private.storage.MessageTuple import MessageTuple
 from peek_plugin_chat.server.ChatApiABC import ChatApiABC, NewMessage, ReceivedMessage
+from vortex.DeferUtil import yesMainThread
 
 logger = logging.getLogger(__name__)
 
@@ -52,12 +53,15 @@ class ChatApi(ChatApiABC):
             self._observablesByUserId[user.userId].on_next(receivedMessage)
 
     def sendMessage(self, newMessage: NewMessage) -> None:
+        yesMainThread()
         return self._mainController.sendMessageFromExternalUser(newMessage)
 
     def createChat(self, fromExtUserId: str, toUserIds: List[str]) -> None:
+        yesMainThread()
         return self._mainController.createChat(fromExtUserId, toUserIds)
 
     def receiveMessages(self, toExtUserId: str) -> Subject:
+        yesMainThread()
         if toExtUserId not in self._observablesByUserId:
             self._observablesByUserId[toExtUserId] = Subject()
         return self._observablesByUserId[toExtUserId]

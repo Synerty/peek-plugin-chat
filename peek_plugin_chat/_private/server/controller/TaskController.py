@@ -2,6 +2,8 @@ import logging
 from typing import List
 
 from copy import copy
+from twisted.internet import reactor
+
 from peek_plugin_chat._private.PluginNames import chatFilt
 from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
 from peek_plugin_chat._private.storage.MessageTuple import MessageTuple
@@ -21,10 +23,10 @@ _deliverdPayloadFilt.update(chatFilt)
 
 class TaskController:
     def __init__(self, activeTaskPluginApi: InboxApiABC):
-        self._activeTaskPluginApi = activeTaskPluginApi
+        self._inboxPluginApi = activeTaskPluginApi
 
-        assert isinstance(self._activeTaskPluginApi, InboxApiABC), (
-            "Expected instance of ActiveTaskServerApiABC, received %s" % self._activeTaskPluginApi)
+        assert isinstance(self._inboxPluginApi, InboxApiABC), (
+            "Expected instance of ActiveTaskServerApiABC, received %s" % self._inboxPluginApi)
 
         self._deliveredEndpoint = PayloadEndpoint(
             _deliverdPayloadFilt, self._processTaskDelivered)
@@ -70,8 +72,11 @@ class TaskController:
 
         return NewTask.PRIORITY_SUCCESS
 
-    @inlineCallbacks
     def addTask(self, chat: ChatTuple, message: MessageTuple, userIds: List[str]):
+        reactor.callLater(0, self._addTask, chat, message, userIds)
+
+    @inlineCallbacks
+    def _addTask(self, chat: ChatTuple, message: MessageTuple, userIds: List[str]):
 
         try:
             filt = copy(_deliverdPayloadFilt)
@@ -93,16 +98,19 @@ class TaskController:
                     notificationRequiredFlags=self._notifyBy(message)
                 )
 
-                yield self._activeTaskPluginApi.addTask(newTask)
+                yield self._inboxPluginApi.addTask(newTask)
 
 
         except Exception as e:
             logger.exception(e)
 
-    @inlineCallbacks
     def removeTask(self, chatId: int, userId: str):
+        reactor.callLater(0, self.removeTask, chatId, userId)
+
+    @inlineCallbacks
+    def _removeTask(self, chatId: int, userId: str):
         try:
-            yield self._activeTaskPluginApi.removeTask(self._makeUniqueId(chatId, userId))
+            yield self._inboxPluginApi.removeTask(self._makeUniqueId(chatId, userId))
 
         except ValueError:
             # This means it didn't exist.
