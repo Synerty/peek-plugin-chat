@@ -72,7 +72,8 @@ export class MsgListComponent extends ComponentLifecycleEventEmitter implements 
 
         let tupleSelector = new TupleSelector(ChatTuple.tupleName, {chatId: chatId});
 
-        let sup = this.tupleDataOfflineObserver.subscribeToTupleSelector(tupleSelector)
+        this.tupleDataOfflineObserver.subscribeToTupleSelector(tupleSelector)
+            .takeUntil(this.onDestroyEvent)
             .subscribe((tuples: ChatTuple[]) => {
                 if (tuples.length === 0)
                     return;
@@ -84,7 +85,6 @@ export class MsgListComponent extends ComponentLifecycleEventEmitter implements 
 
                 this.sendRead();
             });
-        this.onDestroyEvent.subscribe(() => sup.unsubscribe());
 
     }
 
