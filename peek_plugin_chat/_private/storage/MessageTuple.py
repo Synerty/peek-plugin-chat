@@ -33,7 +33,7 @@ class MessageTuple(Tuple, DeclarativeBase):
     fromUserId = Column(String(40), nullable=False)
 
     # Message state details
-    dateTime = Column(DateTime, nullable=False)
+    dateTime = Column(DateTime(True), nullable=False)
 
     onReadPayload = Column(PeekLargeBinary)
 

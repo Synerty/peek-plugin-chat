@@ -18,7 +18,7 @@ class ChatTuple(Tuple, DeclarativeBase):
     id = Column(Integer, primary_key=True, autoincrement=True)
 
     # Message details
-    lastActivity = Column(DateTime, nullable=False)
+    lastActivity = Column(DateTime(True), nullable=False)
 
     #: Unique users key, A comma separated string of the users in this chat
     #  This is used to ensure there is only one chat for these user combinations.

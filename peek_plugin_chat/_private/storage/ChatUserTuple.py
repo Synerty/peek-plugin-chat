@@ -28,7 +28,7 @@ class ChatUserTuple(Tuple, DeclarativeBase):
     isUserExternal = Column(Boolean, nullable=False)
 
     #: Last Read Date
-    lastReadDate = Column(DateTime, nullable=False)
+    lastReadDate = Column(DateTime(True), nullable=False)
     # If ChatUserTuple.lastReadDate < ChatTuple.lastActivity then we have unread
     # messages.
 

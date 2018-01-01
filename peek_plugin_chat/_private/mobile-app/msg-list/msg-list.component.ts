@@ -188,7 +188,7 @@ export class MsgListComponent extends ComponentLifecycleEventEmitter implements 
     }
 
     dateTime(msg: MessageTuple) {
-        return moment(msg.dateTime).format('HH:MM DD-MMM');
+        return moment(msg.dateTime).format('HH:mm DD-MMM');
     }
 
     timePast(msg: MessageTuple) {

@@ -2,6 +2,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import List
 
+import pytz
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.task import LoopingCall
@@ -133,19 +134,19 @@ class MainController(TupleActionProcessorDelegateABC):
         chatTuple = chatTuple[0] if chatTuple else None
         if chatTuple:  # There is an existing one.
             # Bump the chat to the top.
-            chatTuple.lastActivity = datetime.utcnow()
+            chatTuple.lastActivity = datetime.now(pytz.utc)
 
         else:
             # Create the new chat tuple
             chatTuple = ChatTuple()
-            chatTuple.lastActivity = datetime.utcnow()
+            chatTuple.lastActivity = datetime.now(pytz.utc)
             chatTuple.usersKey = usersKey
             session.add(chatTuple)
 
             for userId in allUserIds:
                 chatUserTuple = ChatUserTuple()
                 chatUserTuple.userId = userId
-                chatUserTuple.lastReadDate = datetime.utcnow()
+                chatUserTuple.lastReadDate = datetime.now(pytz.utc)
                 chatUserTuple.isUserExternal = userId in extUserIds
                 chatUserTuple.userName = userId
 
@@ -209,12 +210,12 @@ class MainController(TupleActionProcessorDelegateABC):
             messageTuple.fromUserId = action.fromUserId
             messageTuple.message = action.message
             messageTuple.priority = action.priority
-            messageTuple.dateTime = datetime.utcnow()
+            messageTuple.dateTime = datetime.now(pytz.utc)
             session.add(messageTuple)
 
             # Update the last activity and lastReadDate for the sender
-            chatTuple.lastActivity = datetime.utcnow()
-            chatUserTuple.lastReadDate = datetime.utcnow()
+            chatTuple.lastActivity = datetime.now(pytz.utc)
+            chatUserTuple.lastReadDate = datetime.now(pytz.utc)
 
             # Commit the changes.
             session.commit()
@@ -348,7 +349,7 @@ class MainController(TupleActionProcessorDelegateABC):
             messageTuple.fromUserId = newMessage.fromExtUserId
             messageTuple.message = newMessage.message
             messageTuple.priority = newMessage.priority
-            messageTuple.dateTime = datetime.utcnow()
+            messageTuple.dateTime = datetime.now(pytz.utc)
             session.add(messageTuple)
 
             # Create a map of userIds to IDs for the user read payloads
@@ -418,8 +419,8 @@ class MainController(TupleActionProcessorDelegateABC):
         # chatUsersIdsToUpdate = set()
 
         try:
-            expiredMessageDate = datetime.utcnow() - timedelta(days=2)
-            expiredChatDate = datetime.utcnow() - timedelta(days=5)
+            expiredMessageDate = datetime.now(pytz.utc) - timedelta(days=2)
+            expiredChatDate = datetime.now(pytz.utc) - timedelta(days=5)
 
             # Query for the chats to delete
             chatUsersIdsToUpdate = set(
