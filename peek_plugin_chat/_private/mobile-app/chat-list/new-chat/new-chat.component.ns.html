@@ -43,11 +43,14 @@
                     rows="auto" columns="*,auto, auto, auto"
                     class="dialog-action-btn-group">
             <Button class="dialog-action-btn dialog-action-btn-divider"
+                    [class.dialog-action-btn-disabled]="!newButtonEnabled()"
+                    [isEnabled]="newButtonEnabled()"
                     row="0" col="1"
                     (tap)="addUserClicked()"
                     text="Add User"></Button>
             <Button class="dialog-action-btn dialog-action-btn-divider"
                     [class.dialog-action-btn-disabled]="!createButtonEnabled()"
+                    [isEnabled]="createButtonEnabled()"
                     row="0" col="2"
                     text="Create Chat"
                     (tap)="confirmClicked(true)">
