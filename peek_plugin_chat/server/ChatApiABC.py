@@ -39,15 +39,19 @@ class NewMessage:
 
     #:  Emergency priority for message
     PRIORITY_EMERGENCY = 1
-    #:  Normal priority for message
-    PRIORITY_NORMAL = 2
+
+    #:  Normal priority for a message, the alert will be fleeting
+    PRIORITY_NORMAL_FLEETING = 2
+
+    #:  Normal priority for message, the alert will be sticky
+    PRIORITY_NORMAL_STICKY = 3
 
     def __init__(self,
                  fromExtUserId: str,
                  fromExtUserName: str,
                  toUsers: List[NewMessageUser],
                  message: str,
-                 priority: int = PRIORITY_NORMAL,
+                 priority: int = PRIORITY_NORMAL_FLEETING,
                  ):
         """ 
         :param fromExtUserId: The external user id of the user sending the message.
@@ -91,7 +95,8 @@ class ReceivedMessage:
 
     # Message priorities
     PRIORITY_EMERGENCY = NewMessage.PRIORITY_EMERGENCY
-    PRIORITY_NORMAL = NewMessage.PRIORITY_NORMAL
+    PRIORITY_NORMAL_FLEETING = NewMessage.PRIORITY_NORMAL_FLEETING
+    PRIORITY_NORMAL_STICKY = NewMessage.PRIORITY_NORMAL_STICKY
 
     def __init__(self,
                  fromUserId: str,

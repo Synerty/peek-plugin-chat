@@ -27,7 +27,8 @@ class MessageTuple(Tuple, DeclarativeBase):
 
     priority = Column(Integer, nullable=False)
     PRIORITY_EMERGENCY = NewMessage.PRIORITY_EMERGENCY
-    PRIORITY_NORMAL = NewMessage.PRIORITY_NORMAL
+    PRIORITY_NORMAL_STICKY = NewMessage.PRIORITY_NORMAL_STICKY
+    PRIORITY_NORMAL_FLEETING = NewMessage.PRIORITY_NORMAL_FLEETING
 
     # User to / from
     fromUserId = Column(String(40), nullable=False)

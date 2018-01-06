@@ -26,7 +26,7 @@ class TaskController:
         self._inboxPluginApi = activeTaskPluginApi
 
         assert isinstance(self._inboxPluginApi, InboxApiABC), (
-            "Expected instance of ActiveTaskServerApiABC, received %s" % self._inboxPluginApi)
+                "Expected instance of ActiveTaskServerApiABC, received %s" % self._inboxPluginApi)
 
         self._deliveredEndpoint = PayloadEndpoint(
             _deliverdPayloadFilt, self._processTaskDelivered)
@@ -61,6 +61,10 @@ class TaskController:
         if message.priority == MessageTuple.PRIORITY_EMERGENCY:
             return (NewTask.NOTIFY_BY_SMS
                     | NewTask.NOTIFY_BY_DEVICE_SOUND
+                    | NewTask.NOTIFY_BY_DEVICE_DIALOG)
+
+        if message.priority == MessageTuple.PRIORITY_NORMAL_STICKY:
+            return (NewTask.NOTIFY_BY_DEVICE_SOUND
                     | NewTask.NOTIFY_BY_DEVICE_DIALOG)
 
         return (NewTask.NOTIFY_BY_DEVICE_SOUND

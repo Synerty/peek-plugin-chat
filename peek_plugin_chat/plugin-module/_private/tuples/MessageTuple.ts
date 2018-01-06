@@ -14,8 +14,15 @@ export class MessageTuple extends Tuple {
     message: string;
 
     priority: number;
+
+    // Emergency priority for message
     public static readonly PRIORITY_EMERGENCY = 1;
-    public static readonly PRIORITY_NORMAL = 2;
+
+    // Normal priority for a message, the alert will be fleeting
+    public static readonly PRIORITY_NORMAL_FLEETING = 2;
+
+    // Normal priority for message, the alert will be sticky
+    public static readonly PRIORITY_NORMAL_STICKY = 3;
 
     // User to / from
     fromUserId: string;

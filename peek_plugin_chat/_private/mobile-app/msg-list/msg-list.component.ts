@@ -148,7 +148,8 @@ export class MsgListComponent extends ComponentLifecycleEventEmitter implements 
     }
 
     isNormalPriority(msg: MessageTuple): boolean {
-        return msg.priority === MessageTuple.PRIORITY_NORMAL;
+        return msg.priority === MessageTuple.PRIORITY_NORMAL_STICKY
+            || msg.priority === MessageTuple.PRIORITY_NORMAL_FLEETING;
     }
 
     isEmergencyPriority(msg: MessageTuple): boolean {
@@ -223,7 +224,7 @@ export class MsgListComponent extends ComponentLifecycleEventEmitter implements 
     }
 
     sendMsgClicked() {
-        this.sendMessage(MessageTuple.PRIORITY_NORMAL);
+        this.sendMessage(MessageTuple.PRIORITY_NORMAL_FLEETING);
     }
 
     sendSosClicked() {
@@ -236,7 +237,7 @@ export class MsgListComponent extends ComponentLifecycleEventEmitter implements 
                     this.sendSos();
             })
         } else if (confirmResult) {
-                this.sendSos();
+            this.sendSos();
         }
     }
 
