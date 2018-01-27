@@ -11,7 +11,9 @@ class NewMessageUser:
     
     """
 
-    def __init__(self, toUserId: str, onReadPayload: Optional[bytes] = None):
+    def __init__(self, toUserId: str,
+                 onReadPayload: Optional[bytes] = None,
+                 onDeliveredPayload: Optional[bytes] = None):
         """ 
         :param toUserId: The peek userId that matches a user in peek_plugin_user plugin.
 
@@ -26,6 +28,9 @@ class NewMessageUser:
 
         # On Read Payload
         self.onReadPayload = onReadPayload
+
+        #: On Delivered Payload
+        self.onDeliveredPayload = onDeliveredPayload
 
 
 class NewMessage:

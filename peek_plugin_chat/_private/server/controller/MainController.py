@@ -307,8 +307,7 @@ class MainController(TupleActionProcessorDelegateABC):
         )
 
         # Send alerts to the other users.
-        alertUserIds = [nmu.toUserId for nmu in newMessage.toUsers]
-        self._taskController.addTask(chatTuple, messageTuple, alertUserIds)
+        self._taskController.addTask(chatTuple, messageTuple, newMessage.toUsers)
 
         for userId in allUserIds:
             self._notifyOfChatListUpdate(userId)

@@ -1,8 +1,7 @@
-from sqlalchemy import Column, ForeignKey
+from sqlalchemy import Column, ForeignKey, LargeBinary
 from sqlalchemy import Integer, Index
 from sqlalchemy.orm import relationship
 
-from peek_plugin_base.storage.TypeDecorators import PeekLargeBinary
 from peek_plugin_chat._private.PluginNames import chatTuplePrefix
 from vortex.Tuple import Tuple, addTupleType
 from .ChatUserTuple import ChatUserTuple
@@ -24,13 +23,12 @@ class MessageReadPayloadTuple(Tuple, DeclarativeBase):
     message = relationship(MessageTuple)
 
     #: Foreign key to a ChatUser
-    ## MSSQL forces us make this nullable and use ONDELETE=NO ACTION
     chatUserId = Column(Integer,
-                        ForeignKey(ChatUserTuple.id, ondelete="NO ACTION"),
+                        ForeignKey(ChatUserTuple.id, ondelete="CASCADE"),
                         nullable=True)
     chatUser = relationship(ChatUserTuple)
 
-    onReadPayload = Column(PeekLargeBinary, nullable=False)
+    onReadPayload = Column(LargeBinary, nullable=False)
 
     __table_args__ = (
         Index("idx_ChatPayloads", messageId, chatUserId, unique=False),

@@ -1,3 +1,6 @@
+from txhttputil.util.ModuleUtil import filterModules
+
+
 def loadStorageTuples():
     """ Load Storage Tables
 
@@ -9,17 +12,5 @@ def loadStorageTuples():
 
     """
 
-    from . import Setting
-    Setting.__unused = False
-
-    from . import ChatTuple
-    ChatTuple.__unused = False
-
-    from . import ChatUserTuple
-    ChatUserTuple.__unused = False
-
-    from . import MessageTuple
-    MessageTuple.__unused = False
-
-    from . import MessageReadPayloadTuple
-    MessageReadPayloadTuple.__unused = False
+    for mod in filterModules(__package__, __file__):
+        __import__(mod, locals(), globals())

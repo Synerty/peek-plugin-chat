@@ -9,9 +9,11 @@ from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
 from peek_plugin_chat._private.storage.MessageTuple import MessageTuple
 from twisted.internet.defer import inlineCallbacks, succeed
 
+from peek_plugin_chat.server.ChatApiABC import NewMessageUser
 from peek_plugin_inbox.server.InboxApiABC import InboxApiABC, NewTask
 from vortex.Payload import Payload
 from vortex.PayloadEndpoint import PayloadEndpoint
+from vortex.VortexFactory import VortexFactory
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +42,8 @@ class TaskController:
     def _processTaskDelivered(self, payload, **kwargs):
         logger.debug("_processTaskDelivered called")
         try:
-            yield succeed(True)
+            onDeliverPayload: bytes = payload.tuples
+            yield VortexFactory.sendVortexMsgLocally(onDeliverPayload)
 
         except Exception as e:
             logger.exception(e)
@@ -76,21 +79,30 @@ class TaskController:
 
         return NewTask.PRIORITY_SUCCESS
 
-    def addTask(self, chat: ChatTuple, message: MessageTuple, userIds: List[str]):
-        reactor.callLater(0, self._addTask, chat, message, userIds)
+    def addTask(self, chat: ChatTuple,
+                message: MessageTuple,
+                toUsers: List[NewMessageUser]):
+        reactor.callLater(0, self._addTask, chat, message, toUsers)
 
     @inlineCallbacks
-    def _addTask(self, chat: ChatTuple, message: MessageTuple, userIds: List[str]):
+    def _addTask(self, chat: ChatTuple,
+                 message: MessageTuple,
+                 toUsers: List[NewMessageUser]):
 
         try:
-            filt = copy(_deliverdPayloadFilt)
-            filt["chatId"] = chat.id
-            onDeliverPayload = Payload(filt=filt).toVortexMsg()
 
-            for userId in userIds:
+            for toUser in toUsers:
+                onDeliverPayload = None
+                if toUser.onDeliveredPayload:
+                    filt = copy(_deliverdPayloadFilt)
+                    filt["chatId"] = chat.id
+                    onDeliverPayload = (
+                        Payload(filt=filt, tuples=toUser.onDeliveredPayload).toVortexMsg()
+                    )
+
                 newTask = NewTask(
-                    uniqueId=self._makeUniqueId(chat.id, userId),
-                    userId=userId,
+                    uniqueId=self._makeUniqueId(chat.id, toUser.toUserId),
+                    userId=toUser.toUserId,
                     title=self._makeTaskTitle(message),
                     description=message.message,
                     displayAs=NewTask.DISPLAY_AS_MESSAGE,
