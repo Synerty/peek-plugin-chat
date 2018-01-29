@@ -1,6 +1,6 @@
 {
     "plugin": {
-        "title": "Messages",
+        "title": "Chat",
         "packageName": "peek_plugin_chat",
     "version":"0.8.2",
         "buildNumber": "#PLUGIN_BUILD#",
