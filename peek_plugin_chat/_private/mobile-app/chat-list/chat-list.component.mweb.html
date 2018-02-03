@@ -26,7 +26,10 @@
 <div class="plugin-chat-list">
     <!-- Use the template tag syntax, as this works with nativescript too -->
     <ng-template ngFor let-chat [ngForOf]="chats" let-i="index">
-        <div class="chat-list-messages" (click)="chatClicked(chat)">
+        <div class="chat-list-messages"
+             [class.bg-info]="!isChatRead(chat)"
+             [class.bg-secondary]="isChatRead(chat)"
+             (click)="chatClicked(chat)">
             <div class="chat-list-group">
 
                 <!-- Unread indicator -->
