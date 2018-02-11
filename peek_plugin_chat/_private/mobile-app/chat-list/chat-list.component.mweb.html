@@ -30,11 +30,10 @@
              [class.bg-info]="!isChatRead(chat)"
              [class.bg-secondary]="isChatRead(chat)"
              (click)="chatClicked(chat)">
-            <div class="chat-list-group">
 
                 <!-- Unread indicator -->
-                <fa class="chat-list-icon" name="fw" *ngIf="isChatRead(chat)"></fa>
                 <fa class="chat-list-icon" name="comment-o" *ngIf="!isChatRead(chat)"></fa>
+            <div class="chat-list-group">
 
                 <!-- Other Users -->
                 <span class="chat-list-title" *ngFor="let user of otherChatUsers(chat)">
