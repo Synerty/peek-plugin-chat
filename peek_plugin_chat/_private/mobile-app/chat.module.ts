@@ -14,7 +14,7 @@ import {
     TupleOfflineStorageService
 } from "@synerty/vortexjs";
 // Import a small abstraction library to switch between NativeScript and web
-import {PeekModuleFactory} from "@synerty/peek-util/index.web";
+import {PeekModuleFactory} from "@synerty/peek-util-web";
 // Import the names we need for the
 import {
     chatActionProcessorName,
