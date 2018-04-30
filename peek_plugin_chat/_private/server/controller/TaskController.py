@@ -1,18 +1,18 @@
 import logging
+from copy import copy
 from typing import List
 
-from copy import copy
 from twisted.internet import reactor
+from twisted.internet.defer import inlineCallbacks
 
 from peek_plugin_chat._private.PluginNames import chatFilt
 from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
 from peek_plugin_chat._private.storage.MessageTuple import MessageTuple
-from twisted.internet.defer import inlineCallbacks, succeed
-
 from peek_plugin_chat.server.ChatApiABC import NewMessageUser
 from peek_plugin_inbox.server.InboxApiABC import InboxApiABC, NewTask
 from vortex.Payload import Payload
 from vortex.PayloadEndpoint import PayloadEndpoint
+from vortex.PayloadEnvelope import PayloadEnvelope
 from vortex.VortexFactory import VortexFactory
 
 logger = logging.getLogger(__name__)
@@ -39,7 +39,8 @@ class TaskController:
         self._soapController = None
 
     @inlineCallbacks
-    def _processTaskDelivered(self, payload, **kwargs):
+    def _processTaskDelivered(self, payloadEnvelope: PayloadEnvelope, **kwargs):
+        payload = yield payloadEnvelope.decodePayloadDefer()
         logger.debug("_processTaskDelivered called")
         try:
             onDeliverPayload: bytes = payload.tuples
