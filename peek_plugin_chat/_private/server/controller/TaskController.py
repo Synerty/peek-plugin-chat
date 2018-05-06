@@ -93,13 +93,14 @@ class TaskController:
         try:
 
             for toUser in toUsers:
-                onDeliverPayload = None
+                onDeliverPayloadEnvelope = None
                 if toUser.onDeliveredPayload:
                     filt = copy(_deliverdPayloadFilt)
                     filt["chatId"] = chat.id
-                    onDeliverPayload = (
-                        Payload(filt=filt, tuples=toUser.onDeliveredPayload).toVortexMsg()
-                    )
+
+                    payload = Payload(filt=filt, tuples=toUser.onDeliveredPayload)
+                    payloadEnvelope = yield payload.makePayloadEnvelopeDefer()
+                    onDeliverPayloadEnvelope = yield payloadEnvelope.toVortexMsgDefer()
 
                 newTask = NewTask(
                     uniqueId=self._makeUniqueId(chat.id, toUser.toUserId),
@@ -109,7 +110,7 @@ class TaskController:
                     displayAs=NewTask.DISPLAY_AS_MESSAGE,
                     displayPriority=self._displayPriority(message),
                     routePath=self._makeMessagesRoutePath(chat),
-                    onDeliveredPayload=onDeliverPayload,
+                    onDeliverPayloadEnvelope=onDeliverPayloadEnvelope,
                     autoDelete=NewTask.AUTO_DELETE_ON_SELECT,
                     overwriteExisting=True,
                     notificationRequiredFlags=self._notifyBy(message)
