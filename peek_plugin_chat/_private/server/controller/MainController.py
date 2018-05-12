@@ -127,9 +127,9 @@ class MainController(TupleActionProcessorDelegateABC):
 
         # Check if there is an existing chat
         chatTuple = (session
-            .query(ChatTuple)
-            .filter(ChatTuple.usersKey == usersKey)
-            .all())
+                     .query(ChatTuple)
+                     .filter(ChatTuple.usersKey == usersKey)
+                     .all())
         # Convert from the array
         chatTuple = chatTuple[0] if chatTuple else None
         if chatTuple:  # There is an existing one.
@@ -195,9 +195,9 @@ class MainController(TupleActionProcessorDelegateABC):
 
         try:
             chatTuple = (session
-                .query(ChatTuple)
-                .filter(ChatTuple.id == action.chatId)
-                .one())
+                         .query(ChatTuple)
+                         .filter(ChatTuple.id == action.chatId)
+                         .one())
 
             # Get the chat user for this user, sending a message implies they
             # have read up to date.
@@ -258,9 +258,9 @@ class MainController(TupleActionProcessorDelegateABC):
         try:
             # Find the chat user and update the last read date.
             chatUser = (session
-                .query(ChatUserTuple)
-                .filter(ChatUserTuple.id == action.chatUserId)
-                .one())
+                        .query(ChatUserTuple)
+                        .filter(ChatUserTuple.id == action.chatUserId)
+                        .one())
 
             chatId = chatUser.chatId
             userId = chatUser.userId
@@ -269,16 +269,18 @@ class MainController(TupleActionProcessorDelegateABC):
 
             # Send any onRead payloads that are required, and cleanup.
             msgPayloads = (session
-                .query(MessageReadPayloadTuple)
-                .join(MessageTuple,
-                      MessageTuple.id == MessageReadPayloadTuple.messageId)
-                .filter(MessageTuple.dateTime <= action.readDateTime)
-                .filter(MessageReadPayloadTuple.chatUserId == chatUser.id)
-                .all())
+                           .query(MessageReadPayloadTuple)
+                           .join(MessageTuple,
+                                 MessageTuple.id == MessageReadPayloadTuple.messageId)
+                           .filter(MessageTuple.dateTime <= action.readDateTime)
+                           .filter(MessageReadPayloadTuple.chatUserId == chatUser.id)
+                           .all())
 
             for msgPayload in msgPayloads:
                 if msgPayload.onReadPayload:
-                    VortexFactory.sendVortexMsgLocally(msgPayload.onReadPayload)
+                    reactor.callLater(
+                        0, VortexFactory.sendVortexMsgLocally, msgPayload.onReadPayload
+                    )
 
                 session.delete(msgPayload)
 
