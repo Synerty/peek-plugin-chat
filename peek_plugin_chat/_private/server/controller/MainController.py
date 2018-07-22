@@ -24,7 +24,7 @@ from vortex.TupleSelector import TupleSelector
 from vortex.VortexFactory import VortexFactory
 from vortex.handler.TupleActionProcessor import TupleActionProcessorDelegateABC
 from vortex.handler.TupleDataObservableHandler import TupleDataObservableHandler
-from .TaskController import TaskController
+from .TaskController import TaskController, AddTaskUserTuple
 
 logger = logging.getLogger(__name__)
 
@@ -171,16 +171,17 @@ class MainController(TupleActionProcessorDelegateABC):
         self._ourApi.notifyOfReceivedMessage(chatTuple, messageTuple)
 
         # Get the IDs needed for the updates
-        userIds = [chatUser.userId for chatUser in chatTuple.users
-                   if not chatUser.isUserExternal]
+        users = [chatUser for chatUser in chatTuple.users
+                 if not chatUser.isUserExternal]
         chatId = chatTuple.id
 
         # Send alerts to the other users.
-        alertUserIds = list(filter(lambda s: s != action.fromUserId, userIds))
-        yield self._taskController.addTask(chatTuple, messageTuple, alertUserIds)
+        alertUsers = [AddTaskUserTuple(userId=u.userId, onDeliveredPayload=None)
+                      for u in users if u.userId != action.fromUserId]
+        yield self._taskController.addTask(chatTuple, messageTuple, alertUsers)
 
-        for userId in userIds:
-            self._notifyOfChatListUpdate(userId)
+        for user in users:
+            self._notifyOfChatListUpdate(user.userId)
 
         self._notifyOfChatUpdate(chatId)
 
@@ -309,7 +310,10 @@ class MainController(TupleActionProcessorDelegateABC):
         )
 
         # Send alerts to the other users.
-        self._taskController.addTask(chatTuple, messageTuple, newMessage.toUsers)
+        toUsers = [AddTaskUserTuple(userId=u.toUserId,
+                                    onDeliveredPayload=u.onDeliveredPayload)
+                   for u in newMessage.toUsers]
+        self._taskController.addTask(chatTuple, messageTuple, toUsers)
 
         for userId in allUserIds:
             self._notifyOfChatListUpdate(userId)
@@ -337,7 +341,6 @@ class MainController(TupleActionProcessorDelegateABC):
             chatTuple = self._getOrCreateChatBlocking(
                 allUserIds, [newMessage.fromExtUserId], session
             )
-            chatId = chatTuple.id
 
             # Ensure that the external user is set as an external user
             extChatUser = list(filter(lambda cu: cu.userId == newMessage.fromExtUserId,

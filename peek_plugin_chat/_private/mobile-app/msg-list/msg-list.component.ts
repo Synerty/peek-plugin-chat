@@ -167,6 +167,9 @@ export class MsgListComponent extends ComponentLifecycleEventEmitter implements 
 
         let msg = this.chat.messages[msgIndex];
 
+        if (msg == null)
+            return false;
+
         // If we've read this message, then it's false.
         if (msg.dateTime <= this.chatUser.lastReadDate)
             return false;
@@ -199,6 +202,12 @@ export class MsgListComponent extends ComponentLifecycleEventEmitter implements 
     // ---- scroll update
     private scrollBottom() {
         let position = this.messages().length - 1;
+
+        if (this.messageListRef == null) {
+            console.log("Can not get a reference to messageListRef, scrolling failed");
+            return;
+        }
+
         let element = this.messageListRef.nativeElement;
         if (element["ios"] != null) {
             element["ios"].scrollToRowAtIndexPathAtScrollPositionAnimated(

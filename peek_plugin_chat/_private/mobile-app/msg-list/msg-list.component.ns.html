@@ -67,16 +67,16 @@
         <GridLayout class="chat-messages-btn-group"
                     row="0" col="1"
                     rows="60"
-                    columns="80, 70">
+                    columns="80">
             <Button class="chat-messages-btn"
                     row="0" col="0"
                     text="Send"
                     [isEnabled]="sendEnabled()"
                     (tap)="sendMsgClicked()"></Button>
-            <Button class="chat-messages-btn"
-                    row="0" col="1"
-                    text="SOS"
-                    (tap)="sendSosClicked()"></Button>
+            <!--<Button class="chat-messages-btn"-->
+                    <!--row="0" col="1"-->
+                    <!--text="SOS"-->
+                    <!--(tap)="sendSosClicked()"></Button>-->
 
         </GridLayout>
     </GridLayout>

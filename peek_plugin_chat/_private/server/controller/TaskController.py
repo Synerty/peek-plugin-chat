@@ -1,12 +1,14 @@
 import logging
+from collections import namedtuple
 from copy import copy
-from typing import List
+from typing import List, Union
 
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
 from peek_plugin_chat._private.PluginNames import chatFilt
 from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
+from peek_plugin_chat._private.storage.ChatUserTuple import ChatUserTuple
 from peek_plugin_chat._private.storage.MessageTuple import MessageTuple
 from peek_plugin_chat.server.ChatApiABC import NewMessageUser
 from peek_plugin_inbox.server.InboxApiABC import InboxApiABC, NewTask
@@ -21,6 +23,8 @@ _deliverdPayloadFilt = {
     "key": "active.task.message.delivered"
 }
 _deliverdPayloadFilt.update(chatFilt)
+
+AddTaskUserTuple = namedtuple('AddTaskUserTuple', ['userId', 'onDeliveredPayload'])
 
 
 class TaskController:
@@ -82,13 +86,13 @@ class TaskController:
 
     def addTask(self, chat: ChatTuple,
                 message: MessageTuple,
-                toUsers: List[NewMessageUser]):
+                toUsers: List[AddTaskUserTuple]):
         reactor.callLater(0, self._addTask, chat, message, toUsers)
 
     @inlineCallbacks
     def _addTask(self, chat: ChatTuple,
                  message: MessageTuple,
-                 toUsers: List[NewMessageUser]):
+                 toUsers: List[AddTaskUserTuple]):
 
         try:
 
@@ -103,8 +107,8 @@ class TaskController:
                     onDeliveredPayloadEnvelope = yield payloadEnvelope.toVortexMsgDefer()
 
                 newTask = NewTask(
-                    uniqueId=self._makeUniqueId(chat.id, toUser.toUserId),
-                    userId=toUser.toUserId,
+                    uniqueId=self._makeUniqueId(chat.id, toUser.userId),
+                    userId=toUser.userId,
                     title=self._makeTaskTitle(message),
                     description=message.message,
                     displayAs=NewTask.DISPLAY_AS_MESSAGE,
