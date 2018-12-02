@@ -6,7 +6,7 @@ from typing import List, Union
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 
-from peek_plugin_chat._private.PluginNames import chatFilt
+from peek_plugin_chat._private.PluginNames import chatFilt, chatPluginName
 from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
 from peek_plugin_chat._private.storage.ChatUserTuple import ChatUserTuple
 from peek_plugin_chat._private.storage.MessageTuple import MessageTuple
@@ -107,6 +107,7 @@ class TaskController:
                     onDeliveredPayloadEnvelope = yield payloadEnvelope.toVortexMsgDefer()
 
                 newTask = NewTask(
+                    pluginName=chatPluginName,
                     uniqueId=self._makeUniqueId(chat.id, toUser.userId),
                     userId=toUser.userId,
                     title=self._makeTaskTitle(message),
@@ -132,7 +133,7 @@ class TaskController:
     @inlineCallbacks
     def _removeTask(self, chatId: int, userId: str):
         try:
-            yield self._inboxPluginApi.removeTask(self._makeUniqueId(chatId, userId))
+            yield self._inboxPluginApi.removeTask(chatPluginName, self._makeUniqueId(chatId, userId))
 
         except ValueError:
             # This means it didn't exist.
