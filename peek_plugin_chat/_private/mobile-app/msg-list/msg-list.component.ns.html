@@ -19,7 +19,6 @@
 
     <ListView class="plugin-chat-messages"
               row="2"
-              *ngIf="haveMessages()"
               [items]="messages()" #messageListRef
               separatorColor="transparent">
         <ng-template let-i="index" let-msg="item" let-odd="odd" let-even="even">
