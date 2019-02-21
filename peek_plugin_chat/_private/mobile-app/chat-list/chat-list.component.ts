@@ -107,6 +107,10 @@ export class ChatListComponent extends ComponentLifecycleEventEmitter {
     }
 
     dialogConfirmed(data: NewChatDialogData) {
+        // Safeguard against angular calling this twice
+        if (this.newChatDialogData == null)
+            return;
+
         // Check if this is a unique chat.
         this.createChat(data);
 

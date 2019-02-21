@@ -201,29 +201,23 @@ export class MsgListComponent extends ComponentLifecycleEventEmitter implements 
 
     // ---- scroll update
     private scrollBottom() {
+        /*
         let position = this.messages().length - 1;
 
-        if (this.messageListRef == null) {
+        if (this.messageListRef == null || this.messageListRef.nativeElement == null) {
             console.log("Can not get a reference to messageListRef, scrolling failed");
             return;
         }
 
         let element = this.messageListRef.nativeElement;
-        if (element["ios"] != null) {
-            element["ios"].scrollToRowAtIndexPathAtScrollPositionAnimated(
-                NSIndexPath.indexPathForItemInSection(position, 0),
-                UITableViewScrollPosition.UITableViewScrollPositionTop,
-                true
-            );
-        }
-        else if (element["android"] != null) {
-            element["android"].smoothScrollToPosition(position);
-            //element.scrollToIndex(position);
+        if (element["ios"] != null || element["android"] != null) {
+            element.scrollToIndex(position);
 
         } else if (element["scrollTop"] != null) {
             element.scrollTop = element.scrollHeight;
 
         }
+        */
     }
 
 

@@ -1,21 +1,22 @@
-import logging
 from collections import namedtuple
-from copy import copy
-from typing import List, Union
 
+import pytz
+from datetime import datetime, timedelta
+
+import logging
+from copy import copy
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
-
-from peek_plugin_chat._private.PluginNames import chatFilt
-from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
-from peek_plugin_chat._private.storage.ChatUserTuple import ChatUserTuple
-from peek_plugin_chat._private.storage.MessageTuple import MessageTuple
-from peek_plugin_chat.server.ChatApiABC import NewMessageUser
-from peek_plugin_inbox.server.InboxApiABC import InboxApiABC, NewTask
+from typing import List
 from vortex.Payload import Payload
 from vortex.PayloadEndpoint import PayloadEndpoint
 from vortex.PayloadEnvelope import PayloadEnvelope
 from vortex.VortexFactory import VortexFactory
+
+from peek_plugin_chat._private.PluginNames import chatFilt, chatPluginName
+from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
+from peek_plugin_chat._private.storage.MessageTuple import MessageTuple
+from peek_plugin_inbox.server.InboxApiABC import InboxApiABC, NewTask
 
 logger = logging.getLogger(__name__)
 
@@ -107,6 +108,7 @@ class TaskController:
                     onDeliveredPayloadEnvelope = yield payloadEnvelope.toVortexMsgDefer()
 
                 newTask = NewTask(
+                    pluginName=chatPluginName,
                     uniqueId=self._makeUniqueId(chat.id, toUser.userId),
                     userId=toUser.userId,
                     title=self._makeTaskTitle(message),
@@ -117,7 +119,8 @@ class TaskController:
                     onDeliveredPayloadEnvelope=onDeliveredPayloadEnvelope,
                     autoDelete=NewTask.AUTO_DELETE_ON_SELECT,
                     overwriteExisting=True,
-                    notificationRequiredFlags=self._notifyBy(message)
+                    notificationRequiredFlags=self._notifyBy(message),
+                    autoDeleteDateTime=datetime.now(pytz.utc) + timedelta(minutes=4*60)
                 )
 
                 yield self._inboxPluginApi.addTask(newTask)
@@ -132,7 +135,8 @@ class TaskController:
     @inlineCallbacks
     def _removeTask(self, chatId: int, userId: str):
         try:
-            yield self._inboxPluginApi.removeTask(self._makeUniqueId(chatId, userId))
+            yield self._inboxPluginApi.removeTask(chatPluginName,
+                                                  self._makeUniqueId(chatId, userId))
 
         except ValueError:
             # This means it didn't exist.
