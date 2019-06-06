@@ -40,6 +40,6 @@ Requirements
 This plugin requires the following peek plugins :
 
 *   peek-plugin-active-task
-*   peek-plugin-user
+*   peek-core-user
 
 These dependencies are set in the python package.

@@ -16,7 +16,7 @@ from peek_plugin_chat._private.storage import DeclarativeBase, loadStorageTuples
 from peek_plugin_chat._private.tuples import loadPrivateTuples
 from peek_plugin_chat.tuples import loadPublicTuples
 from peek_plugin_inbox.server.InboxApiABC import InboxApiABC
-from peek_plugin_user.server.UserApiABC import UserApiABC
+from peek_core_user.server.UserApiABC import UserApiABC
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +63,7 @@ class ServerEntryHook(PluginServerEntryHookABC, PluginServerStorageEntryHookABC)
         self._api = ChatApi(self.dbSessionCreator)
         self._loadedObjects.append(self._api)  # For auto shutdown
 
-        userPluginApi = self.platform.getOtherPluginApi("peek_plugin_user")
+        userPluginApi = self.platform.getOtherPluginApi("peek_core_user")
         assert isinstance(userPluginApi, UserApiABC), (
             "Expected UserApiABC")
 

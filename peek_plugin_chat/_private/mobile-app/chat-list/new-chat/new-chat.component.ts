@@ -11,7 +11,7 @@ import {
     transition,
     trigger
 } from "@angular/animations";
-import {UserListItemTuple, UserService} from "@peek/peek_plugin_user";
+import {UserListItemTuple, UserService} from "@peek/peek_core_user";
 import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
 
 export class NewChatDialogData {

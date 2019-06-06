@@ -9,7 +9,7 @@ import {
     CreateChatActionTuple
 } from "@peek/peek_plugin_chat/_private";
 
-import {UserService} from "@peek/peek_plugin_user";
+import {UserService} from "@peek/peek_core_user";
 
 import {
     ComponentLifecycleEventEmitter,

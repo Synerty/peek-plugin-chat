@@ -15,7 +15,7 @@ class NewMessageUser:
                  onReadPayload: Optional[bytes] = None,
                  onDeliveredPayload: Optional[bytes] = None):
         """ 
-        :param toUserId: The peek userId that matches a user in peek_plugin_user plugin.
+        :param toUserId: The peek userId that matches a user in peek_core_user plugin.
 
         :param onReadPayload: (Optional) The payload that will be delivered locally
             on Peek Server when the user has read the message.
@@ -60,7 +60,7 @@ class NewMessage:
                  ):
         """ 
         :param fromExtUserId: The external user id of the user sending the message.
-            This doesn't have to match a userId in the peek_plugin_user plugin.
+            This doesn't have to match a userId in the peek_core_user plugin.
     
         :param fromExtUserName: The name of the external user (or system) sending the
             message.

@@ -1,6 +1,6 @@
 import {CommonModule} from "@angular/common";
 import {NgModule} from "@angular/core";
-import {LoggedInGuard} from "@peek/peek_plugin_user";
+import {LoggedInGuard} from "@peek/peek_core_user";
 import {Routes} from "@angular/router";
 // Import the required classes from VortexJS
 import {
