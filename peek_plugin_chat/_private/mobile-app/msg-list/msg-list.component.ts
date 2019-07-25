@@ -40,7 +40,7 @@ export class MsgListComponent extends ComponentLifecycleEventEmitter implements 
     newMessageText: string = "";
     private userId: string;
 
-    @ViewChild('messageListRef') messageListRef: ElementRef;
+    @ViewChild('messageListRef', {static: true}) messageListRef: ElementRef;
 
     constructor(private balloonMsg: Ng2BalloonMsgService,
                 private actionService: TupleActionPushService,
