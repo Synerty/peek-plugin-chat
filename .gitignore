@@ -18,3 +18,4 @@ dist
 .idea
 .vscode
 docs/api_autodoc
+.scannerwork/
