@@ -1,8 +1,8 @@
-import {CommonModule} from "@angular/common";
-import {NgModule} from "@angular/core";
-import {LoggedInGuard} from "@peek/peek_core_user";
-import {Routes} from "@angular/router";
-// Import the required classes from VortexJS
+import { CommonModule } from "@angular/common";
+import { NgModule } from "@angular/core";
+import { LoggedInGuard } from "@peek/peek_core_user";
+import { Routes } from "@angular/router";
+import { HttpClientModule } from "@angular/common/http";
 import {
     TupleActionPushNameService,
     TupleActionPushOfflineService,
@@ -11,69 +11,65 @@ import {
     TupleDataObserverService,
     TupleDataOfflineObserverService,
     TupleOfflineStorageNameService,
-    TupleOfflineStorageService
+    TupleOfflineStorageService,
 } from "@synerty/vortexjs";
-// Import a small abstraction library to switch between NativeScript and web
-import {PeekModuleFactory} from "@synerty/peek-util-web";
-// Import the names we need for the
+import { FormsModule } from "@angular/forms";
+import { NzIconModule } from "ng-zorro-antd/icon";
+import { RouterModule } from "@angular/router";
 import {
     chatActionProcessorName,
     chatFilt,
     chatObservableName,
-    chatTupleOfflineServiceName
+    chatTupleOfflineServiceName,
 } from "@peek/peek_plugin_chat/_private";
-// Import the default route component
-import {MsgListComponent} from "./msg-list/msg-list.component";
-import {ChatListComponent} from "./chat-list/chat-list.component";
-import {pluginRoutes} from "./chat.routes";
-import {NewChatComponent} from "./chat-list/new-chat/new-chat.component";
-
+import { MsgListComponent } from "./msg-list/msg-list.component";
+import { ChatListComponent } from "./chat-list/chat-list.component";
+import { pluginRoutes } from "./chat.routes";
+import { NewChatComponent } from "./chat-list/new-chat/new-chat.component";
 
 export function tupleOfflineStorageNameServiceFactory() {
     return new TupleOfflineStorageNameService(chatTupleOfflineServiceName);
 }
 
 export function tupleDataObservableNameServiceFactory() {
-    return new TupleDataObservableNameService(
-        chatObservableName, chatFilt);
+    return new TupleDataObservableNameService(chatObservableName, chatFilt);
 }
 
 export function tupleActionPushNameServiceFactory() {
-    return new TupleActionPushNameService(
-        chatActionProcessorName, chatFilt);
+    return new TupleActionPushNameService(chatActionProcessorName, chatFilt);
 }
-
-
 
 // Define the root module for this plugin.
 // This module is loaded by the lazy loader, what ever this defines is what is started.
-// When it first loads, it will look up the routs and then select the component to load.
+// When it first loads, it will look up the routes and then select the component to load.
 @NgModule({
     imports: [
         CommonModule,
-        PeekModuleFactory.RouterModule.forChild(pluginRoutes),
-        ...PeekModuleFactory.FormsModules
+        RouterModule.forChild(pluginRoutes),
+        FormsModule,
+        HttpClientModule,
+        NzIconModule,
     ],
     exports: [],
     providers: [
         TupleOfflineStorageService,
         {
             provide: TupleOfflineStorageNameService,
-            useFactory: tupleOfflineStorageNameServiceFactory
+            useFactory: tupleOfflineStorageNameServiceFactory,
         },
         TupleDataObserverService,
         TupleDataOfflineObserverService,
         {
             provide: TupleDataObservableNameService,
-            useFactory: tupleDataObservableNameServiceFactory
+            useFactory: tupleDataObservableNameServiceFactory,
         },
         TupleActionPushOfflineService,
-        TupleActionPushService, {
+        TupleActionPushService,
+        {
             provide: TupleActionPushNameService,
-            useFactory: tupleActionPushNameServiceFactory
+            useFactory: tupleActionPushNameServiceFactory,
         },
     ],
-    declarations: [MsgListComponent, ChatListComponent, NewChatComponent]
+    declarations: [MsgListComponent, ChatListComponent, NewChatComponent],
 })
-export class ChatModule {
-}
+export class ChatModule {}
