@@ -1,5 +1,5 @@
 import {Component, ElementRef, OnInit, ViewChild} from "@angular/core";
-import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
+import { BalloonMsgService } from "@synerty/peek-plugin-base-js"
 import {ActivatedRoute, Params, Router} from "@angular/router";
 import {
     chatBaseUrl,
@@ -10,7 +10,7 @@ import {
     SendMessageActionTuple
 } from "@peek/peek_plugin_chat/_private";
 
-import {TitleService} from "@synerty/peek-util";
+import { TitleService } from "@synerty/peek-plugin-base-js"
 import {UserService} from "@peek/peek_core_user";
 
 import {
@@ -42,7 +42,7 @@ export class MsgListComponent extends ComponentLifecycleEventEmitter implements 
 
     @ViewChild('messageListRef', {static: true}) messageListRef: ElementRef;
 
-    constructor(private balloonMsg: Ng2BalloonMsgService,
+    constructor(private balloonMsg: BalloonMsgService,
                 private actionService: TupleActionPushService,
                 private tupleDataObserver: TupleDataObserverService,
                 private tupleDataOfflineObserver: TupleDataOfflineObserverService,

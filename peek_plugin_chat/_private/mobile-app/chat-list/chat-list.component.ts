@@ -1,7 +1,7 @@
 import {Component} from "@angular/core";
 import {Router} from "@angular/router";
-import {TitleService} from "@synerty/peek-util";
-import {Ng2BalloonMsgService} from "@synerty/ng2-balloon-msg";
+import { TitleService } from "@synerty/peek-plugin-base-js"
+import { BalloonMsgService } from "@synerty/peek-plugin-base-js"
 import {
     chatBaseUrl,
     ChatTuple,
@@ -31,7 +31,7 @@ export class ChatListComponent extends ComponentLifecycleEventEmitter {
     newChatDialogData: NewChatDialogData = null;
     private userId: string;
 
-    constructor(private balloonMsg: Ng2BalloonMsgService,
+    constructor(private balloonMsg: BalloonMsgService,
                 private actionService: TupleActionPushService,
                 private tupleDataObserver: TupleDataObserverService,
                 private router: Router,
