@@ -60,10 +60,12 @@ export class MsgListComponent extends ComponentLifecycleEventEmitter implements 
 
     // ---- Data manipulation methods
     ngOnInit() {
-        this.route.params.subscribe((params: Params) => {
-            let chatId = parseInt(params['chatId']);
-            this.loadChat(chatId);
-        });
+        this.route.params
+            .takeUntil(this.onDestroyEvent)
+            .subscribe((params: Params) => {
+                let chatId = parseInt(params['chatId']);
+                this.loadChat(chatId);
+            });
 
     }
 
