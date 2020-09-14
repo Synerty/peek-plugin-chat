@@ -12,7 +12,7 @@ import {
     trigger
 } from "@angular/animations";
 import {UserListItemTuple, UserService} from "@peek/peek_core_user";
-import {ComponentLifecycleEventEmitter} from "@synerty/vortexjs";
+import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
 
 export class NewChatDialogData {
 
@@ -46,7 +46,7 @@ export class NewChatDialogData {
         ])
     ]
 })
-export class NewChatComponent extends ComponentLifecycleEventEmitter {
+export class NewChatComponent extends NgLifeCycleEvents {
 
     dialogAnimationState = "shown";
 

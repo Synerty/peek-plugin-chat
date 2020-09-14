@@ -1,6 +1,6 @@
-import {Component, ElementRef, OnInit, ViewChild} from "@angular/core";
-import { BalloonMsgService } from "@synerty/peek-plugin-base-js"
-import {ActivatedRoute, Params, Router} from "@angular/router";
+import { Component, ElementRef, OnInit, ViewChild } from "@angular/core"
+import { BalloonMsgService, NgLifeCycleEvents, TitleService } from "@synerty/peek-plugin-base-js"
+import { ActivatedRoute, Params, Router } from "@angular/router"
 import {
     chatBaseUrl,
     ChatTuple,
@@ -8,250 +8,246 @@ import {
     ChatUserTuple,
     MessageTuple,
     SendMessageActionTuple
-} from "@peek/peek_plugin_chat/_private";
-
-import { TitleService } from "@synerty/peek-plugin-base-js"
-import {UserService} from "@peek/peek_core_user";
-
+} from "@peek/peek_plugin_chat/_private"
+import { UserService } from "@peek/peek_core_user"
 import {
-    ComponentLifecycleEventEmitter,
     TupleActionPushOfflineService,
     TupleActionPushService,
     TupleDataObserverService,
     TupleDataOfflineObserverService,
     TupleSelector
-} from "@synerty/vortexjs";
+} from "@synerty/vortexjs"
+import * as moment from "moment"
 
-import * as moment from "moment";
-
-declare let NSIndexPath: any;
-declare let UITableViewScrollPosition: any;
+declare let NSIndexPath: any
+declare let UITableViewScrollPosition: any
 
 @Component({
-    selector: 'plugin-chat-msg-list',
-    templateUrl: 'msg-list.component.mweb.html',
+    selector: "plugin-chat-msg-list",
+    templateUrl: "msg-list.component.mweb.html",
     moduleId: module.id
 })
-export class MsgListComponent extends ComponentLifecycleEventEmitter implements OnInit {
-
-    chat: ChatTuple = new ChatTuple();
-    chatUser: ChatUserTuple | null = null;
-
-    newMessageText: string = "";
-    private userId: string;
-
-    @ViewChild('messageListRef', {static: true}) messageListRef: ElementRef;
-
-    constructor(private balloonMsg: BalloonMsgService,
-                private actionService: TupleActionPushService,
-                private tupleDataObserver: TupleDataObserverService,
-                private tupleDataOfflineObserver: TupleDataOfflineObserverService,
-                private tupleOfflineAction: TupleActionPushOfflineService,
-                private route: ActivatedRoute,
-                private router: Router,
-                private userService: UserService,
-                titleService: TitleService) {
-        super();
-        titleService.setTitle("Chat");
-
-        this.userId = userService.userDetails.userId;
+export class MsgListComponent extends NgLifeCycleEvents implements OnInit {
+    chat: ChatTuple = new ChatTuple()
+    chatUser: ChatUserTuple | null = null
+    newMessageText: string = ""
+    
+    @ViewChild("messageListRef", {static: true})
+    messageListRef: ElementRef
+    
+    private userId: string
+    
+    constructor(
+        private balloonMsg: BalloonMsgService,
+        private actionService: TupleActionPushService,
+        private tupleDataObserver: TupleDataObserverService,
+        private tupleDataOfflineObserver: TupleDataOfflineObserverService,
+        private tupleOfflineAction: TupleActionPushOfflineService,
+        private route: ActivatedRoute,
+        private router: Router,
+        private userService: UserService,
+        titleService: TitleService
+    ) {
+        super()
+        titleService.setTitle("Chat")
+        
+        this.userId = userService.userDetails.userId
     }
-
-
+    
     // ---- Data manipulation methods
     ngOnInit() {
         this.route.params
             .takeUntil(this.onDestroyEvent)
             .subscribe((params: Params) => {
-                let chatId = parseInt(params['chatId']);
-                this.loadChat(chatId);
-            });
-
-    }
-
-    private loadChat(chatId: number) {
-
-
-        let tupleSelector = new TupleSelector(ChatTuple.tupleName, {chatId: chatId});
-
-        this.tupleDataOfflineObserver.subscribeToTupleSelector(tupleSelector)
-            .takeUntil(this.onDestroyEvent)
-            .subscribe((tuples: ChatTuple[]) => {
-                if (tuples.length === 0)
-                    return;
-
-                this.chat = tuples[0];
-                this.chatUser = this.chat.users.filter(
-                    cu => cu.userId === this.userId)[0];
-                setTimeout(() => this.scrollBottom(), 10);
-
-                this.sendRead();
-            });
-
-    }
-
-    // ---- Action Methods
-
-    /** Tell the server that we've read this chat up to here.
-     */
-    private sendRead() {
-        let action = new ChatUserReadActionTuple();
-        action.chatUserId = this.chatUser.id;
-        action.readDateTime = new Date();
-
-        this.actionService.pushAction(action)
-            .then(() => {
-
+                let chatId = parseInt(params["chatId"])
+                this.loadChat(chatId)
             })
-            .catch((err) => {
-                alert(err);
-            });
+        
     }
-
-    private sendMessage(priority) {
-        let action = new SendMessageActionTuple();
-        action.chatId = this.chat.id;
-        action.fromUserId = this.userService.userDetails.userId;
-        action.message = this.newMessageText;
-        action.priority = priority;
-
-        this.actionService.pushAction(action)
-            .then(() => {
-                this.newMessageText = '';
-                this.balloonMsg.showSuccess("Message Sent");
-
-            })
-            .catch((err) => {
-                alert(err);
-            });
-    }
-
+    
     // ---- Display methods
     messages(): MessageTuple[] {
         if (this.chat != null)
-            return this.chat.messages;
-        return [];
+            return this.chat.messages
+        return []
     }
-
+    
+    // ---- Action Methods
+    
     haveMessages(): boolean {
-        return this.chat != null && this.chat.messages.length !== 0;
+        return this.chat != null && this.chat.messages.length !== 0
     }
-
+    
     sendEnabled(): boolean {
-        return this.newMessageText.length != 0;
+        return this.newMessageText.length != 0
     }
-
+    
     isMessageFromThisUser(msg: MessageTuple): boolean {
-        return msg.fromUserId == this.userService.userDetails.userId;
+        return msg.fromUserId == this.userService.userDetails.userId
     }
-
+    
     userDisplayName(msg: MessageTuple): string {
-        return this.userService.userDisplayName(msg.fromUserId);
+        return this.userService.userDisplayName(msg.fromUserId)
     }
-
+    
     isNormalPriority(msg: MessageTuple): boolean {
         return msg.priority === MessageTuple.PRIORITY_NORMAL_STICKY
-            || msg.priority === MessageTuple.PRIORITY_NORMAL_FLEETING;
+            || msg.priority === MessageTuple.PRIORITY_NORMAL_FLEETING
     }
-
+    
     isEmergencyPriority(msg: MessageTuple): boolean {
-        return msg.priority === MessageTuple.PRIORITY_EMERGENCY;
+        return msg.priority === MessageTuple.PRIORITY_EMERGENCY
     }
-
+    
     isFirstUnreadMesage(msgIndex: number): boolean {
         if (this.chat == null)
-            return false;
-
+            return false
+        
         // If there are no messages, then false
         // though this method won't be called if this is the case
         if (this.chat.messages.length === 0)
-            return false;
-
-        let msg = this.chat.messages[msgIndex];
-
+            return false
+        
+        let msg = this.chat.messages[msgIndex]
+        
         if (msg == null)
-            return false;
-
+            return false
+        
         // If we've read this message, then it's false.
         if (msg.dateTime <= this.chatUser.lastReadDate)
-            return false;
-
+            return false
+        
         // From here on, msg is unread, we just need to work out if it's the first
-
+        
         // If this is the first message...
         if (msgIndex === 0)
-            return true;
-
-        let lastMsg = this.chat.messages[msgIndex - 1];
-        let lastIsRead = (lastMsg.dateTime <= this.chatUser.lastReadDate);
-
+            return true
+        
+        let lastMsg = this.chat.messages[msgIndex - 1]
+        let lastIsRead = (lastMsg.dateTime <= this.chatUser.lastReadDate)
+        
         // Now, if the last message is read, and this is unread (which it is),
         // then true, this is our first unread message
         if (lastIsRead)
-            return true;
-
-        return false;
+            return true
+        
+        return false
     }
-
+    
     dateTime(msg: MessageTuple) {
-        return moment(msg.dateTime).format('HH:mm DD-MMM');
+        return moment(msg.dateTime)
+            .format("HH:mm DD-MMM")
     }
-
+    
     timePast(msg: MessageTuple) {
-        return moment.duration(new Date().getTime() - msg.dateTime.getTime()).humanize();
+        return moment.duration(new Date().getTime() - msg.dateTime.getTime())
+            .humanize()
     }
-
-    // ---- scroll update
-    private scrollBottom() {
-        /*
-        let position = this.messages().length - 1;
-
-        if (this.messageListRef == null || this.messageListRef.nativeElement == null) {
-            console.log("Can not get a reference to messageListRef, scrolling failed");
-            return;
-        }
-
-        let element = this.messageListRef.nativeElement;
-        if (element["ios"] != null || element["android"] != null) {
-            element.scrollToIndex(position);
-
-        } else if (element["scrollTop"] != null) {
-            element.scrollTop = element.scrollHeight;
-
-        }
-        */
-    }
-
-
+    
     // ---- User Input methods
     navToChatsClicked() {
-        this.router.navigate([chatBaseUrl, 'chats']);
+        this.router.navigate([chatBaseUrl, "chats"])
     }
-
+    
     sendMsgClicked() {
-        this.sendMessage(MessageTuple.PRIORITY_NORMAL_FLEETING);
+        this.sendMessage(MessageTuple.PRIORITY_NORMAL_FLEETING)
     }
-
+    
     sendSosClicked() {
-        let confirmResult = confirm("SEND SOS, Are you sure?");
-
+        let confirmResult = confirm("SEND SOS, Are you sure?")
+        
         // On NativeScript, it returns a promise
         if (confirmResult["then"] != null) {
             confirmResult["then"]((result) => {
                 if (result)
-                    this.sendSos();
+                    this.sendSos()
             })
-        } else if (confirmResult) {
-            this.sendSos();
+        }
+        else if (confirmResult) {
+            this.sendSos()
         }
     }
-
+    
+    private loadChat(chatId: number) {
+        
+        let tupleSelector = new TupleSelector(ChatTuple.tupleName, {chatId: chatId})
+        
+        this.tupleDataOfflineObserver.subscribeToTupleSelector(tupleSelector)
+            .takeUntil(this.onDestroyEvent)
+            .subscribe((tuples: ChatTuple[]) => {
+                if (tuples.length === 0)
+                    return
+                
+                this.chat = tuples[0]
+                this.chatUser = this.chat.users.filter(
+                    cu => cu.userId === this.userId)[0]
+                setTimeout(() => this.scrollBottom(), 10)
+                
+                this.sendRead()
+            })
+        
+    }
+    
+    /** Tell the server that we've read this chat up to here.
+     */
+    private sendRead() {
+        let action = new ChatUserReadActionTuple()
+        action.chatUserId = this.chatUser.id
+        action.readDateTime = new Date()
+        
+        this.actionService.pushAction(action)
+            .then(() => {
+            
+            })
+            .catch((err) => {
+                alert(err)
+            })
+    }
+    
+    private sendMessage(priority) {
+        let action = new SendMessageActionTuple()
+        action.chatId = this.chat.id
+        action.fromUserId = this.userService.userDetails.userId
+        action.message = this.newMessageText
+        action.priority = priority
+        
+        this.actionService.pushAction(action)
+            .then(() => {
+                this.newMessageText = ""
+                this.balloonMsg.showSuccess("Message Sent")
+                
+            })
+            .catch((err) => {
+                alert(err)
+            })
+    }
+    
+    // ---- scroll update
+    private scrollBottom() {
+        /*
+         let position = this.messages().length - 1;
+         
+         if (this.messageListRef == null || this.messageListRef.nativeElement == null) {
+         console.log("Can not get a reference to messageListRef, scrolling failed");
+         return;
+         }
+         
+         let element = this.messageListRef.nativeElement;
+         if (element["ios"] != null || element["android"] != null) {
+         element.scrollToIndex(position);
+         
+         } else if (element["scrollTop"] != null) {
+         element.scrollTop = element.scrollHeight;
+         
+         }
+         */
+    }
+    
     private sendSos() {
         if (this.newMessageText.length === 0)
-            this.newMessageText = "SOS";
-
-        this.sendMessage(MessageTuple.PRIORITY_EMERGENCY);
+            this.newMessageText = "SOS"
+        
+        this.sendMessage(MessageTuple.PRIORITY_EMERGENCY)
     }
-
-
+    
 }
