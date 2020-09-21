@@ -8,8 +8,8 @@ import {
     ChatUserTuple,
     MessageTuple,
     SendMessageActionTuple
-} from "@peek/peek_plugin_chat/_private"
-import { UserService } from "@peek/peek_core_user"
+} from "@_peek/peek_plugin_chat/_private"
+import { UserService } from "@_peek/peek_core_user"
 import {
     TupleActionPushOfflineService,
     TupleActionPushService,

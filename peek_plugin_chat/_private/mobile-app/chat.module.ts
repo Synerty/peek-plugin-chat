@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
-import { LoggedInGuard } from "@peek/peek_core_user";
+import { LoggedInGuard } from "@_peek/peek_core_user";
 import { Routes } from "@angular/router";
 import { HttpClientModule } from "@angular/common/http";
 import {
@@ -21,7 +21,7 @@ import {
     chatFilt,
     chatObservableName,
     chatTupleOfflineServiceName,
-} from "@peek/peek_plugin_chat/_private";
+} from "@_peek/peek_plugin_chat/_private";
 import { MsgListComponent } from "./msg-list/msg-list.component";
 import { ChatListComponent } from "./chat-list/chat-list.component";
 import { pluginRoutes } from "./chat.routes";
