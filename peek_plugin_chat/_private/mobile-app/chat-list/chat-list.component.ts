@@ -1,8 +1,8 @@
 import { Component } from "@angular/core"
 import { Router } from "@angular/router"
 import { BalloonMsgService, NgLifeCycleEvents, TitleService } from "@synerty/peek-plugin-base-js"
-import { chatBaseUrl, ChatTuple, ChatUserTuple, CreateChatActionTuple } from "@_peek/peek_plugin_chat/_private"
-import { UserService } from "@_peek/peek_core_user"
+import { chatBaseUrl, ChatTuple, ChatUserTuple, CreateChatActionTuple } from "@peek/peek_plugin_chat/_private"
+import { UserService } from "@peek/peek_core_user"
 import { TupleActionPushService, TupleDataObserverService, TupleSelector } from "@synerty/vortexjs"
 import { NewChatDialogData } from "./new-chat/new-chat.component"
 
