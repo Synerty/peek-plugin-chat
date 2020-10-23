@@ -1,6 +1,6 @@
 import { Component } from "@angular/core"
 import { Router } from "@angular/router"
-import { BalloonMsgService, NgLifeCycleEvents, TitleService } from "@synerty/peek-plugin-base-js"
+import { BalloonMsgService, NgLifeCycleEvents, HeaderService } from "@synerty/peek-plugin-base-js"
 import { chatBaseUrl, ChatTuple, ChatUserTuple, CreateChatActionTuple } from "@peek/peek_plugin_chat/_private"
 import { UserService } from "@peek/peek_core_user"
 import { TupleActionPushService, TupleDataObserverService, TupleSelector } from "@synerty/vortexjs"
@@ -24,10 +24,10 @@ export class ChatListComponent extends NgLifeCycleEvents {
         private tupleDataObserver: TupleDataObserverService,
         private router: Router,
         private userService: UserService,
-        titleService: TitleService
+        headerService: HeaderService
     ) {
         super()
-        titleService.setTitle("Chats")
+        headerService.setTitle("Chats")
         
         this.userId = userService.userDetails.userId
         

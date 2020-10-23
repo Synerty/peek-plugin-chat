@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core"
-import { BalloonMsgService, NgLifeCycleEvents, TitleService } from "@synerty/peek-plugin-base-js"
+import { BalloonMsgService, NgLifeCycleEvents, HeaderService } from "@synerty/peek-plugin-base-js"
 import { ActivatedRoute, Params, Router } from "@angular/router"
 import {
     chatBaseUrl,
@@ -46,10 +46,10 @@ export class MsgListComponent extends NgLifeCycleEvents implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private userService: UserService,
-        titleService: TitleService
+        headerService: HeaderService
     ) {
         super()
-        titleService.setTitle("Chat")
+        headerService.setTitle("Chat")
         
         this.userId = userService.userDetails.userId
     }
