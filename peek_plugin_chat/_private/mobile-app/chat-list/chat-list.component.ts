@@ -8,8 +8,7 @@ import { NewChatDialogData } from "./new-chat/new-chat.component"
 
 @Component({
     selector: "plugin-chat-chat-list",
-    templateUrl: "chat-list.component.mweb.html",
-    moduleId: module.id
+    templateUrl: "chat-list.component.mweb.html"
 })
 export class ChatListComponent extends NgLifeCycleEvents {
     

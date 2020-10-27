@@ -24,8 +24,7 @@ declare let UITableViewScrollPosition: any
 
 @Component({
     selector: "plugin-chat-msg-list",
-    templateUrl: "msg-list.component.mweb.html",
-    moduleId: module.id
+    templateUrl: "msg-list.component.mweb.html"
 })
 export class MsgListComponent extends NgLifeCycleEvents implements OnInit {
     chat: ChatTuple = new ChatTuple()
