@@ -10,10 +10,9 @@
     },
     "requiresServices": [
         "server",
-        "client",
+        "field",
         "storage",
         "admin",
-        "mobile",
         "doc-dev",
         "doc-admin",
         "doc-user"
@@ -33,8 +32,7 @@
     },
     "server": {
     },
-    "client": {
-    },
+
     "storage": {
         "alembicDir": "_private/alembic"
     },
@@ -44,7 +42,7 @@
         "appModule": "chat.module#ChatModule",
         "moduleDir": "plugin-module"
     },
-    "mobile": {
+    "field": {
         "showHomeLink": true,
         "appDir": "_private/mobile-app",
         "appModule": "chat.module#ChatModule",
@@ -52,7 +50,7 @@
         "icon": "/assets/peek_plugin_chat/icon.png",
         "moduleDir": "plugin-module"
     },
-    "desktop": {
+    "office": {
         "moduleDir": "plugin-module"
     }
 }
