@@ -9,8 +9,8 @@ from vortex.Tuple import Tuple, addTupleType, TupleField
 
 @addTupleType
 class ChatTuple(Tuple, DeclarativeBase):
-    __tupleType__ = chatTuplePrefix + 'ChatTuple'
-    __tablename__ = 'ChatTuple'
+    __tupleType__ = chatTuplePrefix + "ChatTuple"
+    __tablename__ = "ChatTuple"
 
     # This will include the users relationship when serialising the data
     __fieldNames__ = ["users"]
@@ -28,8 +28,6 @@ class ChatTuple(Tuple, DeclarativeBase):
     # include the messages or not.
     messages = TupleField()  # relationship("Message.chatId")
 
-    users = relationship("ChatUserTuple", lazy='joined')
+    users = relationship("ChatUserTuple", lazy="joined")
 
-    __table_args__ = (
-        Index("idx_Chat_usersKey", usersKey, unique=True),
-    )
+    __table_args__ = (Index("idx_Chat_usersKey", usersKey, unique=True),)

@@ -9,13 +9,17 @@ from twisted.internet.task import LoopingCall
 
 from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
 from peek_plugin_chat._private.storage.ChatUserTuple import ChatUserTuple
-from peek_plugin_chat._private.storage.MessageReadPayloadTuple import \
-    MessageReadPayloadTuple
+from peek_plugin_chat._private.storage.MessageReadPayloadTuple import (
+    MessageReadPayloadTuple,
+)
 from peek_plugin_chat._private.storage.MessageTuple import MessageTuple
-from peek_plugin_chat._private.tuples.ChatUserReadActionTuple import \
-    ChatUserReadActionTuple
+from peek_plugin_chat._private.tuples.ChatUserReadActionTuple import (
+    ChatUserReadActionTuple,
+)
 from peek_plugin_chat._private.tuples.CreateChatActionTuple import CreateChatActionTuple
-from peek_plugin_chat._private.tuples.SendMessageActionTuple import SendMessageActionTuple
+from peek_plugin_chat._private.tuples.SendMessageActionTuple import (
+    SendMessageActionTuple,
+)
 from peek_plugin_chat.server.ChatApiABC import NewMessage
 from peek_core_user.server.UserApiABC import UserApiABC
 from vortex.DeferUtil import vortexLogFailure, deferToThreadWrapWithLogger
@@ -32,11 +36,14 @@ logger = logging.getLogger(__name__)
 class MainController(TupleActionProcessorDelegateABC):
     PROCESS_PERIOD = 600.0  # 10 minutes
 
-    def __init__(self, dbSessionCreator,
-                 ourApi,  #: ChatApi,
-                 userPluginApi: UserApiABC,
-                 taskController: TaskController,
-                 tupleObservable: TupleDataObservableHandler):
+    def __init__(
+        self,
+        dbSessionCreator,
+        ourApi,  #: ChatApi,
+        userPluginApi: UserApiABC,
+        taskController: TaskController,
+        tupleObservable: TupleDataObservableHandler,
+    ):
 
         self._ourApi = ourApi
         self._ormSessionCreator = dbSessionCreator
@@ -55,7 +62,7 @@ class MainController(TupleActionProcessorDelegateABC):
         self._processLoopingCall.stop()
 
     def _notifyOfChatListUpdate(self, userId: str) -> None:
-        """ Notify of Chat List Update
+        """Notify of Chat List Update
 
         Notify the observer of the data it needs to emit to the users.
 
@@ -68,7 +75,7 @@ class MainController(TupleActionProcessorDelegateABC):
         )
 
     def _notifyOfChatUpdate(self, chatId: int) -> None:
-        """ Notify of Chat Update
+        """Notify of Chat Update
 
         Notify the observer of the data it needs to emit to the users.
 
@@ -94,15 +101,15 @@ class MainController(TupleActionProcessorDelegateABC):
 
     @deferToThreadWrapWithLogger(logger)
     def externalMessageQueued(self, toUserId: str):
-        """ External Message Sent
-        
+        """External Message Sent
+
         This method is used to notify the main controller when a new message has
         been queued from an external system.
         """
 
     @deferToThreadWrapWithLogger(logger)
     def _processCreateChatAction(self, action: CreateChatActionTuple):
-        """ Process Create Chat action by user
+        """Process Create Chat action by user
 
         Process updates to the task from the UI.
 
@@ -119,17 +126,16 @@ class MainController(TupleActionProcessorDelegateABC):
         for userId in allUserIds:
             self._notifyOfChatListUpdate(userId)
 
-    def _getOrCreateChatBlocking(self, allUserIds: List[str],
-                                 extUserIds: List[str],
-                                 session) -> ChatTuple:
+    def _getOrCreateChatBlocking(
+        self, allUserIds: List[str], extUserIds: List[str], session
+    ) -> ChatTuple:
         extUserIds = set(extUserIds)
-        usersKey = ','.join(sorted(allUserIds))
+        usersKey = ",".join(sorted(allUserIds))
 
         # Check if there is an existing chat
-        chatTuple = (session
-                     .query(ChatTuple)
-                     .filter(ChatTuple.usersKey == usersKey)
-                     .all())
+        chatTuple = (
+            session.query(ChatTuple).filter(ChatTuple.usersKey == usersKey).all()
+        )
         # Convert from the array
         chatTuple = chatTuple[0] if chatTuple else None
         if chatTuple:  # There is an existing one.
@@ -160,7 +166,7 @@ class MainController(TupleActionProcessorDelegateABC):
     # Process send Message Actions
     @inlineCallbacks
     def _processSendMessageAction(self, action: SendMessageActionTuple):
-        """ Process Task Update
+        """Process Task Update
 
         Process updates to the task from the UI.
 
@@ -171,13 +177,17 @@ class MainController(TupleActionProcessorDelegateABC):
         self._ourApi.notifyOfReceivedMessage(chatTuple, messageTuple)
 
         # Get the IDs needed for the updates
-        users = [chatUser for chatUser in chatTuple.users
-                 if not chatUser.isUserExternal]
+        users = [
+            chatUser for chatUser in chatTuple.users if not chatUser.isUserExternal
+        ]
         chatId = chatTuple.id
 
         # Send alerts to the other users.
-        alertUsers = [AddTaskUserTuple(userId=u.userId, onDeliveredPayload=None)
-                      for u in users if u.userId != action.fromUserId]
+        alertUsers = [
+            AddTaskUserTuple(userId=u.userId, onDeliveredPayload=None)
+            for u in users
+            if u.userId != action.fromUserId
+        ]
         yield self._taskController.addTask(chatTuple, messageTuple, alertUsers)
 
         for user in users:
@@ -187,23 +197,23 @@ class MainController(TupleActionProcessorDelegateABC):
 
     @deferToThreadWrapWithLogger(logger)
     def _processSendMessageActionInThread(self, action: SendMessageActionTuple):
-        """ Process Task Update
-        
+        """Process Task Update
+
         Process updates to the task from the UI.
-        
+
         """
         session = self._ormSessionCreator()
 
         try:
-            chatTuple = (session
-                         .query(ChatTuple)
-                         .filter(ChatTuple.id == action.chatId)
-                         .one())
+            chatTuple = (
+                session.query(ChatTuple).filter(ChatTuple.id == action.chatId).one()
+            )
 
             # Get the chat user for this user, sending a message implies they
             # have read up to date.
-            chatUserTuple = list(filter(lambda cu: cu.userId == action.fromUserId,
-                                        chatTuple.users))[0]
+            chatUserTuple = list(
+                filter(lambda cu: cu.userId == action.fromUserId, chatTuple.users)
+            )[0]
 
             # Create the new chat tuple
             messageTuple = MessageTuple()
@@ -226,7 +236,6 @@ class MainController(TupleActionProcessorDelegateABC):
 
             return chatTuple, messageTuple
 
-
         finally:
             session.close()
 
@@ -235,7 +244,7 @@ class MainController(TupleActionProcessorDelegateABC):
 
     @inlineCallbacks
     def _processChatReadAction(self, action: ChatUserReadActionTuple):
-        """ Process Create Chat Read action
+        """Process Create Chat Read action
 
         Updates the last read date for the user, sends any waiting payloads fo those
         messages
@@ -248,7 +257,7 @@ class MainController(TupleActionProcessorDelegateABC):
 
     @deferToThreadWrapWithLogger(logger)
     def _processChatReadActionInThread(self, action: ChatUserReadActionTuple):
-        """ Process Create Chat Read action
+        """Process Create Chat Read action
 
         Updates the last read date for the user, sends any waiting payloads fo those
         messages
@@ -258,10 +267,11 @@ class MainController(TupleActionProcessorDelegateABC):
 
         try:
             # Find the chat user and update the last read date.
-            chatUser = (session
-                        .query(ChatUserTuple)
-                        .filter(ChatUserTuple.id == action.chatUserId)
-                        .one())
+            chatUser = (
+                session.query(ChatUserTuple)
+                .filter(ChatUserTuple.id == action.chatUserId)
+                .one()
+            )
 
             chatId = chatUser.chatId
             userId = chatUser.userId
@@ -269,13 +279,15 @@ class MainController(TupleActionProcessorDelegateABC):
             chatUser.lastReadDate = action.readDateTime
 
             # Send any onRead payloads that are required, and cleanup.
-            msgPayloads = (session
-                           .query(MessageReadPayloadTuple)
-                           .join(MessageTuple,
-                                 MessageTuple.id == MessageReadPayloadTuple.messageId)
-                           .filter(MessageTuple.dateTime <= action.readDateTime)
-                           .filter(MessageReadPayloadTuple.chatUserId == chatUser.id)
-                           .all())
+            msgPayloads = (
+                session.query(MessageReadPayloadTuple)
+                .join(
+                    MessageTuple, MessageTuple.id == MessageReadPayloadTuple.messageId
+                )
+                .filter(MessageTuple.dateTime <= action.readDateTime)
+                .filter(MessageReadPayloadTuple.chatUserId == chatUser.id)
+                .all()
+            )
 
             for msgPayload in msgPayloads:
                 if msgPayload.onReadPayload:
@@ -297,22 +309,25 @@ class MainController(TupleActionProcessorDelegateABC):
 
     @inlineCallbacks
     def sendMessageFromExternalUser(self, newMessage: NewMessage):
-        """ Send Message From External User
-        
+        """Send Message From External User
+
         This method handles the messages sent via the API
-        
+
         :param newMessage: A new message to send, in the APIs simple format.
         :return: None
-        
+
         """
-        chatTuple, messageTuple, allUserIds = (
-            yield self._sendMessageFromExternalUserInThread(newMessage)
-        )
+        (
+            chatTuple,
+            messageTuple,
+            allUserIds,
+        ) = yield self._sendMessageFromExternalUserInThread(newMessage)
 
         # Send alerts to the other users.
-        toUsers = [AddTaskUserTuple(userId=u.toUserId,
-                                    onDeliveredPayload=u.onDeliveredPayload)
-                   for u in newMessage.toUsers]
+        toUsers = [
+            AddTaskUserTuple(userId=u.toUserId, onDeliveredPayload=u.onDeliveredPayload)
+            for u in newMessage.toUsers
+        ]
         self._taskController.addTask(chatTuple, messageTuple, toUsers)
 
         for userId in allUserIds:
@@ -322,7 +337,7 @@ class MainController(TupleActionProcessorDelegateABC):
 
     @deferToThreadWrapWithLogger(logger)
     def _sendMessageFromExternalUserInThread(self, newMessage: NewMessage):
-        """ Send Message From External User
+        """Send Message From External User
 
         This method handles the messages sent via the API
 
@@ -343,8 +358,11 @@ class MainController(TupleActionProcessorDelegateABC):
             )
 
             # Ensure that the external user is set as an external user
-            extChatUser = list(filter(lambda cu: cu.userId == newMessage.fromExtUserId,
-                                      chatTuple.users))[0]
+            extChatUser = list(
+                filter(
+                    lambda cu: cu.userId == newMessage.fromExtUserId, chatTuple.users
+                )
+            )[0]
             extChatUser.isUserExternal = True
 
             # Create the new chat tuple
@@ -377,7 +395,6 @@ class MainController(TupleActionProcessorDelegateABC):
 
             return chatTuple, messageTuple, allUserIds
 
-
         finally:
             session.close()
 
@@ -386,10 +403,10 @@ class MainController(TupleActionProcessorDelegateABC):
 
     @deferToThreadWrapWithLogger(logger)
     def createChat(self, fromExtUserId: str, toUserIds: List[str]) -> None:
-        """ Create Chat
-        
+        """Create Chat
+
         Used by the API
-        
+
         """
 
         session = self._ormSessionCreator()
@@ -428,27 +445,26 @@ class MainController(TupleActionProcessorDelegateABC):
 
             # Query for the chats to delete
             chatUsersIdsToUpdate = set(
-                map(lambda i: i[0],
+                map(
+                    lambda i: i[0],
                     session.query(ChatUserTuple.userId)
                     .join(ChatTuple, ChatTuple.id == ChatUserTuple.chatId)
-                    .filter(ChatTuple.lastActivity < expiredChatDate)
-                    )
+                    .filter(ChatTuple.lastActivity < expiredChatDate),
+                )
             )
 
             # No updates required for message expiration, just delete them.
             (
-                session
-                    .query(MessageTuple)
-                    .filter(MessageTuple.dateTime < expiredMessageDate)
-                    .delete()
+                session.query(MessageTuple)
+                .filter(MessageTuple.dateTime < expiredMessageDate)
+                .delete()
             )
 
             # Delete Chats
             (
-                session
-                    .query(ChatTuple)
-                    .filter(ChatTuple.lastActivity < expiredChatDate)
-                    .delete()
+                session.query(ChatTuple)
+                .filter(ChatTuple.lastActivity < expiredChatDate)
+                .delete()
             )
 
             session.commit()

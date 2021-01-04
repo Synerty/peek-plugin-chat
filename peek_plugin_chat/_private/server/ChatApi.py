@@ -28,12 +28,12 @@ class ChatApi(ChatApiABC):
         for subject in self._observablesByUserId.values():
             subject.dispose()
 
-    def notifyOfReceivedMessage(self, chat:ChatTuple, message:MessageTuple):
+    def notifyOfReceivedMessage(self, chat: ChatTuple, message: MessageTuple):
         receivedMessage = ReceivedMessage(
             fromUserId=message.fromUserId,
             allUserIds=[cu.userId for cu in chat.users],
             message=message.message,
-            priority=message.priority
+            priority=message.priority,
         )
 
         for user in chat.users:

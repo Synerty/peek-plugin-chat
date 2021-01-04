@@ -12,15 +12,15 @@ from vortex.Tuple import Tuple, addTupleType, TupleField
 
 @addTupleType
 class ChatUserTuple(Tuple, DeclarativeBase):
-    __tupleType__ = chatTuplePrefix + 'ChatUserTuple'
-    __tablename__ = 'ChatUserTuple'
+    __tupleType__ = chatTuplePrefix + "ChatUserTuple"
+    __tablename__ = "ChatUserTuple"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
 
     #: Foreign key to a chat
-    chatId = Column(Integer,
-                    ForeignKey(ChatTuple.id, ondelete="CASCADE"),
-                    nullable=False)
+    chatId = Column(
+        Integer, ForeignKey(ChatTuple.id, ondelete="CASCADE"), nullable=False
+    )
     chat = relationship(ChatTuple)
 
     #: The userId of a user in the chat

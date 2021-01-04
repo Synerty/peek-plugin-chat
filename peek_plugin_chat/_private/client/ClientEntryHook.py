@@ -1,10 +1,12 @@
 import logging
 
 from peek_plugin_base.client.PluginClientEntryHookABC import PluginClientEntryHookABC
-from peek_plugin_chat._private.client.DeviceTupleDataObservableProxy import \
-    makeDeviceTupleDataObservableProxy
-from peek_plugin_chat._private.client.DeviceTupleProcessorActionProxy import \
-    makeTupleActionProcessorProxy
+from peek_plugin_chat._private.client.DeviceTupleDataObservableProxy import (
+    makeDeviceTupleDataObservableProxy,
+)
+from peek_plugin_chat._private.client.DeviceTupleProcessorActionProxy import (
+    makeTupleActionProcessorProxy,
+)
 
 from peek_plugin_chat._private.storage import loadStorageTuples
 from peek_plugin_chat._private.tuples import loadPrivateTuples
@@ -23,7 +25,7 @@ class ClientEntryHook(PluginClientEntryHookABC):
         self._loadedObjects = []
 
     def load(self) -> None:
-        """ Load
+        """Load
 
         This will be called when the plugin is loaded, just after the db is migrated.
         Place any custom initialiastion steps here.
@@ -37,7 +39,7 @@ class ClientEntryHook(PluginClientEntryHookABC):
         logger.debug("Loaded")
 
     def start(self):
-        """ Load
+        """Load
 
         This will be called when the plugin is loaded, just after the db is migrated.
         Place any custom initialiastion steps here.
@@ -48,7 +50,7 @@ class ClientEntryHook(PluginClientEntryHookABC):
         logger.debug("Started")
 
     def stop(self):
-        """ Stop
+        """Stop
 
         This method is called by the platform to tell the peek app to shutdown and stop
         everything it's doing

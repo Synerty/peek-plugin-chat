@@ -1,5 +1,5 @@
 def loadPrivateTuples():
-    """ Load Private Tuples
+    """Load Private Tuples
 
     In this method, we load the private tuples.
     This registers them so the Vortex can reconstructed them from
@@ -7,10 +7,13 @@ def loadPrivateTuples():
 
     """
     from . import SendMessageActionTuple
+
     SendMessageActionTuple.__unused = False
 
     from . import CreateChatActionTuple
+
     CreateChatActionTuple.__unused = False
 
     from . import ChatUserReadActionTuple
+
     ChatUserReadActionTuple.__unused = False

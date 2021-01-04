@@ -1,28 +1,28 @@
 <div class="peek-nav-section">
     <div class="btn-group pull-left" role="group">
         <button
+            (click)="navToChatsClicked()"
             class="nav-section-btn"
             role="group"
-            (click)="navToChatsClicked()"
         >
-            <i nz-icon nzType="left" nzTheme="outline"></i>
+            <i nz-icon nzTheme="outline" nzType="left"></i>
         </button>
     </div>
 </div>
 <div class="peek-nav-bar-padding"></div>
 
-<div class="plugin-chat-messages" #messageListRef>
+<div #messageListRef class="plugin-chat-messages">
     <!-- No Messages -->
     <p *ngIf="!haveMessages()">No messages</p>
-
-    <div class="chat-messages-list" *ngFor="let i=index; let msg of messages()">
+    
+    <div *ngFor="let i=index; let msg of messages()" class="chat-messages-list">
         <!-- Unread marker -->
         <hr *ngIf="isFirstUnreadMesage(i)" />
-
+        
         <!-- From and Date -->
         <div
-            class="chat-messages-details"
             [class.text-right]="!isMessageFromThisUser(msg)"
+            class="chat-messages-details"
         >
             <small *ngIf="!isMessageFromThisUser(msg)">
                 From {{userDisplayName(msg)}} ({{msg.fromUserId}}),
@@ -33,10 +33,10 @@
             </small>
         </div>
         <div
-            [class.chat-messages-sent]="isMessageFromThisUser(msg)"
-            [class.chat-messages-received]="!isMessageFromThisUser(msg)"
-            [class.bg-success]="isNormalPriority(msg)"
             [class.bg-danger]="isEmergencyPriority(msg)"
+            [class.bg-success]="isNormalPriority(msg)"
+            [class.chat-messages-received]="!isMessageFromThisUser(msg)"
+            [class.chat-messages-sent]="isMessageFromThisUser(msg)"
         >
             <div class="chat-messages-contents">{{msg.message}}</div>
         </div>
@@ -47,17 +47,17 @@
     <div class="row">
         <div class="col-xs-11">
             <textarea
-                class="form-control chat-messages-new-text"
                 [(ngModel)]="newMessageText"
+                class="form-control chat-messages-new-text"
             ></textarea>
         </div>
         <div class="col-xs-1">
             <div class="btn-group chat-messages-btn-group">
                 <button
+                    (click)="sendMsgClicked()"
+                    [disabled]="!sendEnabled()"
                     class="chat-messages-btn"
                     type="button"
-                    [disabled]="!sendEnabled()"
-                    (click)="sendMsgClicked()"
                 >
                     Send
                 </button>

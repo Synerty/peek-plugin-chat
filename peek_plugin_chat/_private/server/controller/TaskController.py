@@ -20,12 +20,10 @@ from peek_plugin_inbox.server.InboxApiABC import InboxApiABC, NewTask
 
 logger = logging.getLogger(__name__)
 
-_deliverdPayloadFilt = {
-    "key": "active.task.message.delivered"
-}
+_deliverdPayloadFilt = {"key": "active.task.message.delivered"}
 _deliverdPayloadFilt.update(chatFilt)
 
-AddTaskUserTuple = namedtuple('AddTaskUserTuple', ['userId', 'onDeliveredPayload'])
+AddTaskUserTuple = namedtuple("AddTaskUserTuple", ["userId", "onDeliveredPayload"])
 
 
 class TaskController:
@@ -33,10 +31,13 @@ class TaskController:
         self._inboxPluginApi = activeTaskPluginApi
 
         assert isinstance(self._inboxPluginApi, InboxApiABC), (
-                "Expected instance of ActiveTaskServerApiABC, received %s" % self._inboxPluginApi)
+            "Expected instance of ActiveTaskServerApiABC, received %s"
+            % self._inboxPluginApi
+        )
 
         self._deliveredEndpoint = PayloadEndpoint(
-            _deliverdPayloadFilt, self._processTaskDelivered)
+            _deliverdPayloadFilt, self._processTaskDelivered
+        )
 
     def shutdown(self):
         self._deliveredEndpoint.shutdown()
@@ -68,16 +69,16 @@ class TaskController:
 
     def _notifyBy(self, message: MessageTuple):
         if message.priority == MessageTuple.PRIORITY_EMERGENCY:
-            return (NewTask.NOTIFY_BY_SMS
-                    | NewTask.NOTIFY_BY_DEVICE_SOUND
-                    | NewTask.NOTIFY_BY_DEVICE_DIALOG)
+            return (
+                NewTask.NOTIFY_BY_SMS
+                | NewTask.NOTIFY_BY_DEVICE_SOUND
+                | NewTask.NOTIFY_BY_DEVICE_DIALOG
+            )
 
         if message.priority == MessageTuple.PRIORITY_NORMAL_STICKY:
-            return (NewTask.NOTIFY_BY_DEVICE_SOUND
-                    | NewTask.NOTIFY_BY_DEVICE_DIALOG)
+            return NewTask.NOTIFY_BY_DEVICE_SOUND | NewTask.NOTIFY_BY_DEVICE_DIALOG
 
-        return (NewTask.NOTIFY_BY_DEVICE_SOUND
-                | NewTask.NOTIFY_BY_DEVICE_POPUP)
+        return NewTask.NOTIFY_BY_DEVICE_SOUND | NewTask.NOTIFY_BY_DEVICE_POPUP
 
     def _displayPriority(self, message: MessageTuple):
         if message.priority == MessageTuple.PRIORITY_EMERGENCY:
@@ -85,15 +86,15 @@ class TaskController:
 
         return NewTask.PRIORITY_SUCCESS
 
-    def addTask(self, chat: ChatTuple,
-                message: MessageTuple,
-                toUsers: List[AddTaskUserTuple]):
+    def addTask(
+        self, chat: ChatTuple, message: MessageTuple, toUsers: List[AddTaskUserTuple]
+    ):
         reactor.callLater(0, self._addTask, chat, message, toUsers)
 
     @inlineCallbacks
-    def _addTask(self, chat: ChatTuple,
-                 message: MessageTuple,
-                 toUsers: List[AddTaskUserTuple]):
+    def _addTask(
+        self, chat: ChatTuple, message: MessageTuple, toUsers: List[AddTaskUserTuple]
+    ):
 
         try:
 
@@ -105,7 +106,9 @@ class TaskController:
 
                     payload = Payload(filt=filt, tuples=toUser.onDeliveredPayload)
                     payloadEnvelope = yield payload.makePayloadEnvelopeDefer()
-                    onDeliveredPayloadEnvelope = yield payloadEnvelope.toVortexMsgDefer()
+                    onDeliveredPayloadEnvelope = (
+                        yield payloadEnvelope.toVortexMsgDefer()
+                    )
 
                 newTask = NewTask(
                     pluginName=chatPluginName,
@@ -120,11 +123,11 @@ class TaskController:
                     autoDelete=NewTask.AUTO_DELETE_ON_SELECT,
                     overwriteExisting=True,
                     notificationRequiredFlags=self._notifyBy(message),
-                    autoDeleteDateTime=datetime.now(pytz.utc) + timedelta(minutes=4*60)
+                    autoDeleteDateTime=datetime.now(pytz.utc)
+                    + timedelta(minutes=4 * 60),
                 )
 
                 yield self._inboxPluginApi.addTask(newTask)
-
 
         except Exception as e:
             logger.exception(e)
@@ -135,8 +138,9 @@ class TaskController:
     @inlineCallbacks
     def _removeTask(self, chatId: int, userId: str):
         try:
-            yield self._inboxPluginApi.removeTask(chatPluginName,
-                                                  self._makeUniqueId(chatId, userId))
+            yield self._inboxPluginApi.removeTask(
+                chatPluginName, self._makeUniqueId(chatId, userId)
+            )
 
         except ValueError:
             # This means it didn't exist.

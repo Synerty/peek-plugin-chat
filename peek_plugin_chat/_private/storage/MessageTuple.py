@@ -12,15 +12,15 @@ from vortex.Tuple import Tuple, addTupleType
 
 @addTupleType
 class MessageTuple(Tuple, DeclarativeBase):
-    __tupleType__ = chatTuplePrefix + 'MessageTuple'
-    __tablename__ = 'MessageTuple'
+    __tupleType__ = chatTuplePrefix + "MessageTuple"
+    __tablename__ = "MessageTuple"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
 
     #: Foreign key to a chat
-    chatId = Column(Integer,
-                    ForeignKey(ChatTuple.id, ondelete="CASCADE"),
-                    nullable=False)
+    chatId = Column(
+        Integer, ForeignKey(ChatTuple.id, ondelete="CASCADE"), nullable=False
+    )
 
     # Message details
     message = Column(String(2000), nullable=False)

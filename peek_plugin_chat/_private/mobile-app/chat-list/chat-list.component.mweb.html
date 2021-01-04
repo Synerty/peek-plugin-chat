@@ -1,46 +1,46 @@
 <!--TRANSITION WITH REASON DIALOG -->
 <pl-chat-new-chat
-    *ngIf="isNewChatDialogShown()"
-    (create)="dialogConfirmed($event)"
     (cancel)="dialogCanceled()"
+    (create)="dialogConfirmed($event)"
+    *ngIf="isNewChatDialogShown()"
     [data]="newChatDialogData"
 >
 </pl-chat-new-chat>
 
-<div class="peek-nav-section" *ngIf="!isNewChatDialogShown()">
+<div *ngIf="!isNewChatDialogShown()" class="peek-nav-section">
     <!--
         The following 'div' groups button to the left of the Nav Bar.
         Can contain one to many buttons
     -->
     <div class="btn-group pull-right" role="group">
-        <button class="nav-section-btn" (click)="newChatClicked()">
-            <i nz-icon nzType="plus" nzTheme="outline"></i> New Chat
+        <button (click)="newChatClicked()" class="nav-section-btn">
+            <i nz-icon nzTheme="outline" nzType="plus"></i> New Chat
         </button>
     </div>
 </div>
-<div class="peek-nav-bar-padding" *ngIf="!isNewChatDialogShown()"></div>
+<div *ngIf="!isNewChatDialogShown()" class="peek-nav-bar-padding"></div>
 
 <div class="plugin-chat-list">
     <!-- Use the template tag syntax, as this works with nativescript too -->
-    <ng-template ngFor let-chat [ngForOf]="chats" let-i="index">
+    <ng-template [ngForOf]="chats" let-chat let-i="index" ngFor>
         <div
-            class="chat-list-messages"
+            (click)="chatClicked(chat)"
             [class.bg-info]="!isChatRead(chat)"
             [class.bg-secondary]="isChatRead(chat)"
-            (click)="chatClicked(chat)"
+            class="chat-list-messages"
         >
             <!-- Unread indicator -->
             <i
-                nz-icon
-                nzType="comment"
-                nzTheme="outline"
                 *ngIf="!isChatRead(chat)"
+                nz-icon
+                nzTheme="outline"
+                nzType="comment"
             ></i>
             <div class="chat-list-group">
                 <!-- Other Users -->
                 <span
-                    class="chat-list-title"
                     *ngFor="let user of otherChatUsers(chat)"
+                    class="chat-list-title"
                 >
                     {{userDisplayName(user)}} ({{user.userId}})
                 </span>

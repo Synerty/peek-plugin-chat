@@ -14,13 +14,15 @@ from vortex.handler.TupleDataObservableHandler import TuplesProviderABC
 
 logger = logging.getLogger(__name__)
 
+
 class ChatTupleProvider(TuplesProviderABC):
     def __init__(self, ormSessionCreator):
         self._ormSessionCreator = ormSessionCreator
 
     @deferToThreadWrapWithLogger(logger)
-    def makeVortexMsg(self, filt: dict,
-                      tupleSelector: TupleSelector) -> Union[Deferred, bytes]:
+    def makeVortexMsg(
+        self, filt: dict, tupleSelector: TupleSelector
+    ) -> Union[Deferred, bytes]:
 
         # Potential filters can be placed here.
         chatId = tupleSelector.selector.get("chatId")
@@ -34,27 +36,29 @@ class ChatTupleProvider(TuplesProviderABC):
             # If one chat id has been specified, then just query for one and
             # it's messages.
             if chatId is not None:
-                chat = (session.query(ChatTuple)
-                        .filter(ChatTuple.id == chatId)
-                        .all())
+                chat = session.query(ChatTuple).filter(ChatTuple.id == chatId).all()
 
                 if chat:
                     chat = chat[0]
-                    chat.messages = (session.query(MessageTuple)
-                                     .filter(MessageTuple.chatId == chatId)
-                                     .order_by(MessageTuple.dateTime)
-                                     .all())
+                    chat.messages = (
+                        session.query(MessageTuple)
+                        .filter(MessageTuple.chatId == chatId)
+                        .order_by(MessageTuple.dateTime)
+                        .all()
+                    )
 
                     chats = [chat]
 
             # Else the UI is after a list of chats for this user
             else:
 
-                chats = (session.query(ChatTuple)
-                         .join(ChatUserTuple, ChatUserTuple.chatId == ChatTuple.id)
-                         .filter(ChatUserTuple.userId == userId)
-                         .order_by(desc(ChatTuple.lastActivity))
-                         .all())
+                chats = (
+                    session.query(ChatTuple)
+                    .join(ChatUserTuple, ChatUserTuple.chatId == ChatTuple.id)
+                    .filter(ChatUserTuple.userId == userId)
+                    .order_by(desc(ChatTuple.lastActivity))
+                    .all()
+                )
 
             # Create the vortex message
             msg = Payload(filt, tuples=chats).makePayloadEnvelope().toVortexMsg()

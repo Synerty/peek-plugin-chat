@@ -1,8 +1,8 @@
-import { CommonModule } from "@angular/common";
-import { NgModule } from "@angular/core";
-import { LoggedInGuard } from "@peek/peek_core_user";
-import { Routes } from "@angular/router";
-import { HttpClientModule } from "@angular/common/http";
+import { CommonModule } from "@angular/common"
+import { NgModule } from "@angular/core"
+import { LoggedInGuard } from "@peek/peek_core_user"
+import { Routes } from "@angular/router"
+import { HttpClientModule } from "@angular/common/http"
 import {
     TupleActionPushNameService,
     TupleActionPushOfflineService,
@@ -12,31 +12,31 @@ import {
     TupleDataOfflineObserverService,
     TupleOfflineStorageNameService,
     TupleOfflineStorageService,
-} from "@synerty/vortexjs";
-import { FormsModule } from "@angular/forms";
-import { NzIconModule } from "ng-zorro-antd/icon";
-import { RouterModule } from "@angular/router";
+} from "@synerty/vortexjs"
+import { FormsModule } from "@angular/forms"
+import { NzIconModule } from "ng-zorro-antd/icon"
+import { RouterModule } from "@angular/router"
 import {
     chatActionProcessorName,
     chatFilt,
     chatObservableName,
     chatTupleOfflineServiceName,
-} from "@peek/peek_plugin_chat/_private";
-import { MsgListComponent } from "./msg-list/msg-list.component";
-import { ChatListComponent } from "./chat-list/chat-list.component";
-import { pluginRoutes } from "./chat.routes";
-import { NewChatComponent } from "./chat-list/new-chat/new-chat.component";
+} from "@peek/peek_plugin_chat/_private"
+import { MsgListComponent } from "./msg-list/msg-list.component"
+import { ChatListComponent } from "./chat-list/chat-list.component"
+import { pluginRoutes } from "./chat.routes"
+import { NewChatComponent } from "./chat-list/new-chat/new-chat.component"
 
 export function tupleOfflineStorageNameServiceFactory() {
-    return new TupleOfflineStorageNameService(chatTupleOfflineServiceName);
+    return new TupleOfflineStorageNameService(chatTupleOfflineServiceName)
 }
 
 export function tupleDataObservableNameServiceFactory() {
-    return new TupleDataObservableNameService(chatObservableName, chatFilt);
+    return new TupleDataObservableNameService(chatObservableName, chatFilt)
 }
 
 export function tupleActionPushNameServiceFactory() {
-    return new TupleActionPushNameService(chatActionProcessorName, chatFilt);
+    return new TupleActionPushNameService(chatActionProcessorName, chatFilt)
 }
 
 // Define the root module for this plugin.
@@ -72,4 +72,5 @@ export function tupleActionPushNameServiceFactory() {
     ],
     declarations: [MsgListComponent, ChatListComponent, NewChatComponent],
 })
-export class ChatModule {}
+export class ChatModule {
+}

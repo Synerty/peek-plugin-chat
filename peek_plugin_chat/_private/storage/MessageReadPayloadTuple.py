@@ -11,25 +11,23 @@ from .MessageTuple import MessageTuple
 
 @addTupleType
 class MessageReadPayloadTuple(Tuple, DeclarativeBase):
-    __tupleType__ = chatTuplePrefix + 'MessageReadPayloadTuple'
-    __tablename__ = 'MessageReadPayloadTuple'
+    __tupleType__ = chatTuplePrefix + "MessageReadPayloadTuple"
+    __tablename__ = "MessageReadPayloadTuple"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
 
     #: Foreign key to a Message
-    messageId = Column(Integer,
-                       ForeignKey(MessageTuple.id, ondelete="CASCADE"),
-                       nullable=False)
+    messageId = Column(
+        Integer, ForeignKey(MessageTuple.id, ondelete="CASCADE"), nullable=False
+    )
     message = relationship(MessageTuple)
 
     #: Foreign key to a ChatUser
-    chatUserId = Column(Integer,
-                        ForeignKey(ChatUserTuple.id, ondelete="CASCADE"),
-                        nullable=True)
+    chatUserId = Column(
+        Integer, ForeignKey(ChatUserTuple.id, ondelete="CASCADE"), nullable=True
+    )
     chatUser = relationship(ChatUserTuple)
 
     onReadPayload = Column(LargeBinary, nullable=False)
 
-    __table_args__ = (
-        Index("idx_ChatPayloads", messageId, chatUserId, unique=False),
-    )
+    __table_args__ = (Index("idx_ChatPayloads", messageId, chatUserId, unique=False),)

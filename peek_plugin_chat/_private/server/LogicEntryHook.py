@@ -2,13 +2,16 @@ import logging
 from typing import Optional
 
 from peek_plugin_base.server.PluginLogicEntryHookABC import PluginLogicEntryHookABC
-from peek_plugin_base.server.PluginServerStorageEntryHookABC import \
-    PluginServerStorageEntryHookABC
+from peek_plugin_base.server.PluginServerStorageEntryHookABC import (
+    PluginServerStorageEntryHookABC,
+)
 from peek_plugin_chat._private.server.ChatApi import ChatApi
-from peek_plugin_chat._private.server.TupleActionProcessor import \
-    makeTupleActionProcessorHandler
-from peek_plugin_chat._private.server.TupleDataObservable import \
-    makeTupleDataObservableHandler
+from peek_plugin_chat._private.server.TupleActionProcessor import (
+    makeTupleActionProcessorHandler,
+)
+from peek_plugin_chat._private.server.TupleDataObservable import (
+    makeTupleDataObservableHandler,
+)
 from peek_plugin_chat._private.server.admin_backend import makeAdminBackendHandlers
 from peek_plugin_chat._private.server.controller.MainController import MainController
 from peek_plugin_chat._private.server.controller.TaskController import TaskController
@@ -34,7 +37,7 @@ class LogicEntryHook(PluginLogicEntryHookABC, PluginServerStorageEntryHookABC):
         self._api = None
 
     def load(self) -> None:
-        """ Load
+        """Load
 
         This will be called when the plugin is loaded, just after the db is migrated.
         Place any custom initialiastion steps here.
@@ -48,7 +51,7 @@ class LogicEntryHook(PluginLogicEntryHookABC, PluginServerStorageEntryHookABC):
         logger.debug("Loaded")
 
     def start(self):
-        """ Start
+        """Start
 
         This will be called to start the plugin.
         Start, means what ever we choose to do here. This includes:
@@ -64,12 +67,10 @@ class LogicEntryHook(PluginLogicEntryHookABC, PluginServerStorageEntryHookABC):
         self._loadedObjects.append(self._api)  # For auto shutdown
 
         userPluginApi = self.platform.getOtherPluginApi("peek_core_user")
-        assert isinstance(userPluginApi, UserApiABC), (
-            "Expected UserApiABC")
+        assert isinstance(userPluginApi, UserApiABC), "Expected UserApiABC"
 
         activeTaskPluginApi = self.platform.getOtherPluginApi("peek_plugin_inbox")
-        assert isinstance(activeTaskPluginApi, InboxApiABC), (
-            "Expected ActiveTaskApiABC")
+        assert isinstance(activeTaskPluginApi, InboxApiABC), "Expected ActiveTaskApiABC"
 
         self._loadedObjects.extend(makeAdminBackendHandlers(self.dbSessionCreator))
 
@@ -86,7 +87,8 @@ class LogicEntryHook(PluginLogicEntryHookABC, PluginServerStorageEntryHookABC):
             dbSessionCreator=self.dbSessionCreator,
             tupleObservable=tupleObservable,
             userPluginApi=userPluginApi,
-            taskController=taskController).start()
+            taskController=taskController,
+        ).start()
         self._loadedObjects.append(mainController)
 
         self._api.setMainController(mainController)
@@ -97,7 +99,7 @@ class LogicEntryHook(PluginLogicEntryHookABC, PluginServerStorageEntryHookABC):
         logger.debug("Started")
 
     def stop(self):
-        """ Stop
+        """Stop
 
         This method is called by the platform to tell the peek app to shutdown and stop
         everything it's doing
@@ -123,10 +125,9 @@ class LogicEntryHook(PluginLogicEntryHookABC, PluginServerStorageEntryHookABC):
     def dbMetadata(self):
         return DeclarativeBase.metadata
 
-
     @property
     def publishedServerApi(self) -> Optional[object]:
-        """ Published Server API
+        """Published Server API
 
         :return  class that implements the API that can be used by other PLUGINs on this
         platform.
