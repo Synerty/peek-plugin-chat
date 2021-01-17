@@ -2,9 +2,9 @@ import { Component } from "@angular/core"
 import { Router } from "@angular/router"
 import {
     BalloonMsgService,
-    NgLifeCycleEvents,
     HeaderService
 } from "@synerty/peek-plugin-base-js"
+import { NgLifeCycleEvents } from "@synerty/vortexjs"
 import {
     chatBaseUrl,
     ChatTuple,

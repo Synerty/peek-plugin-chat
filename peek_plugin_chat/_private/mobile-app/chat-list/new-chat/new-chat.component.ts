@@ -1,18 +1,7 @@
-import {
-    Component,
-    EventEmitter,
-    Input,
-    Output,
-} from "@angular/core"
-import {
-    animate,
-    state,
-    style,
-    transition,
-    trigger
-} from "@angular/animations"
+import { Component, EventEmitter, Input, Output, } from "@angular/core"
+import { animate, state, style, transition, trigger } from "@angular/animations"
 import { UserListItemTuple, UserService } from "@peek/peek_core_user"
-import { NgLifeCycleEvents } from "@synerty/peek-plugin-base-js"
+import { NgLifeCycleEvents } from "@synerty/vortexjs"
 
 export class NewChatDialogData {
     
