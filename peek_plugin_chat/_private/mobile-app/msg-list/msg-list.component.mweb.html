@@ -14,11 +14,11 @@
 <div #messageListRef class="plugin-chat-messages">
     <!-- No Messages -->
     <p *ngIf="!haveMessages()">No messages</p>
-    
+
     <div *ngFor="let i=index; let msg of messages()" class="chat-messages-list">
         <!-- Unread marker -->
         <hr *ngIf="isFirstUnreadMesage(i)" />
-        
+
         <!-- From and Date -->
         <div
             [class.text-right]="!isMessageFromThisUser(msg)"
