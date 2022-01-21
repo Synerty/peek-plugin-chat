@@ -1,3 +1,4 @@
+import { takeUntil } from "rxjs/operators";
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { BalloonMsgService, HeaderService } from "@synerty/peek-plugin-base-js";
 import {
@@ -6,7 +7,7 @@ import {
     TupleActionPushService,
     TupleDataObserverService,
     TupleDataOfflineObserverService,
-    TupleSelector
+    TupleSelector,
 } from "@synerty/vortexjs";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
@@ -57,7 +58,7 @@ export class MsgListComponent extends NgLifeCycleEvents implements OnInit {
     // ---- Data manipulation methods
     ngOnInit() {
         this.route.params
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((params: Params) => {
                 let chatId = parseInt(params["chatId"]);
                 this.loadChat(chatId);
@@ -167,7 +168,7 @@ export class MsgListComponent extends NgLifeCycleEvents implements OnInit {
 
         this.tupleDataOfflineObserver
             .subscribeToTupleSelector(tupleSelector)
-            .takeUntil(this.onDestroyEvent)
+            .pipe(takeUntil(this.onDestroyEvent))
             .subscribe((tuples: ChatTuple[]) => {
                 if (tuples.length === 0) return;
 

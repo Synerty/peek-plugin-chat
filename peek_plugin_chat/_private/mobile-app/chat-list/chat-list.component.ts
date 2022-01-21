@@ -5,7 +5,7 @@ import {
     NgLifeCycleEvents,
     TupleActionPushService,
     TupleDataObserverService,
-    TupleSelector
+    TupleSelector,
 } from "@synerty/vortexjs";
 import {
     chatBaseUrl,
