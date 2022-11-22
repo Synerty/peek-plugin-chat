@@ -133,7 +133,7 @@ class TaskController:
             logger.exception(e)
 
     def removeTask(self, chatId: int, userId: str):
-        reactor.callLater(0, self.removeTask, chatId, userId)
+        reactor.callLater(0, self._removeTask, chatId, userId)
 
     @inlineCallbacks
     def _removeTask(self, chatId: int, userId: str):
