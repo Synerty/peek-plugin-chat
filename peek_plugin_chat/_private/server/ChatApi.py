@@ -1,13 +1,19 @@
 import logging
 from typing import List
 
-from rx.subjects import Subject
+from reactivex.subject import Subject
 from twisted.internet import reactor
 
-from peek_plugin_chat._private.server.controller.MainController import MainController
+from peek_plugin_chat._private.server.controller.MainController import (
+    MainController,
+)
 from peek_plugin_chat._private.storage.ChatTuple import ChatTuple
 from peek_plugin_chat._private.storage.MessageTuple import MessageTuple
-from peek_plugin_chat.server.ChatApiABC import ChatApiABC, NewMessage, ReceivedMessage
+from peek_plugin_chat.server.ChatApiABC import (
+    ChatApiABC,
+    NewMessage,
+    ReceivedMessage,
+)
 from vortex.DeferUtil import yesMainThread
 
 logger = logging.getLogger(__name__)
