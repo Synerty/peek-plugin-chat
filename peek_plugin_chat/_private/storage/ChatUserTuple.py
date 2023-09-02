@@ -11,7 +11,7 @@ from vortex.Tuple import Tuple, addTupleType, TupleField
 
 
 @addTupleType
-class ChatUserTuple(Tuple, DeclarativeBase):
+class ChatUserTuple(DeclarativeBase, Tuple):
     __tupleType__ = chatTuplePrefix + "ChatUserTuple"
     __tablename__ = "ChatUserTuple"
 

@@ -10,7 +10,7 @@ from .MessageTuple import MessageTuple
 
 
 @addTupleType
-class MessageReadPayloadTuple(Tuple, DeclarativeBase):
+class MessageReadPayloadTuple(DeclarativeBase, Tuple):
     __tupleType__ = chatTuplePrefix + "MessageReadPayloadTuple"
     __tablename__ = "MessageReadPayloadTuple"
 

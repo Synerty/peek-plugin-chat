@@ -1,7 +1,7 @@
 from typing import Optional, List
 
 from abc import ABCMeta, abstractmethod
-from rx.subjects import Subject
+from reactivex.subject import Subject
 
 
 class NewMessageUser:
@@ -79,7 +79,9 @@ class NewMessage:
         """
         # From User
         self.fromExtUserId = self._required(fromExtUserId, "fromExtUserId")
-        self.fromExtUserName = self._required(fromExtUserName, "fromExtUserName")
+        self.fromExtUserName = self._required(
+            fromExtUserName, "fromExtUserName"
+        )
 
         # To User
         self.toUsers = self._required(toUsers, "toUsers")
@@ -108,7 +110,11 @@ class ReceivedMessage:
     PRIORITY_NORMAL_STICKY = NewMessage.PRIORITY_NORMAL_STICKY
 
     def __init__(
-        self, fromUserId: str, allUserIds: List[str], message: str, priority: int
+        self,
+        fromUserId: str,
+        allUserIds: List[str],
+        message: str,
+        priority: int,
     ):
         """
         :param fromUserId: The peek userId sending the message.
